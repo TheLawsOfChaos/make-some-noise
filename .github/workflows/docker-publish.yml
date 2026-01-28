@@ -13,8 +13,8 @@ on:
         type: string
 
 env:
-  DOCKERHUB_FRONTEND: thelawsofchaos/makethenoise-frontend
-  DOCKERHUB_BACKEND: thelawsofchaos/makethenoise-backend
+  DOCKERHUB_FRONTEND: thelawsofchaos/makesomenoise-frontend
+  DOCKERHUB_BACKEND: thelawsofchaos/makesomeoise-backend
 
 jobs:
   build-and-push:

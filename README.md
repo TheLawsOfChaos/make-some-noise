@@ -8,13 +8,25 @@
   <a href="https://github.com/TheLawsOfChaos/make-some-noise/actions">
     <img src="https://img.shields.io/github/actions/workflow/status/TheLawsOfChaos/make-some-noise/docker-publish.yml?branch=main" alt="Build" />
   </a>
+  <a href="https://github.com/TheLawsOfChaos/make-some-noise/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/TheLawsOfChaos/make-some-noise" alt="License" />
+  </a>
   <a href="https://github.com/TheLawsOfChaos/make-some-noise/releases">
     <img src="https://img.shields.io/github/v/release/TheLawsOfChaos/make-some-noise" alt="Release" />
   </a>
   <img alt="GitHub Release Date" src="https://img.shields.io/github/release-date/thelawsofchaos/make-some-noise">
-  <a href="https://github.com/TheLawsOfChaos/make-some-noise/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/TheLawsOfChaos/make-some-noise" alt="License" />
-  </a>
+</p>
+
+<p align="center">
+  Frontend: 
+  <a href="https://hub.docker.com/r/thelawsofchaos/makesomenoise-frontend">
+    <img alt="Docker Image Size (tag) - frontend" src="https://img.shields.io/docker/image-size/thelawsofchaos/makesomenoise-frontend/latest">
+  </a></br>
+  Backend: 
+  <a href="https://hub.docker.com/r/thelawsofchaos/makesomenoise-backend">
+    <img alt="Docker Image Size (tag) - backend" src="https://img.shields.io/docker/image-size/thelawsofchaos/makesomenoise-backend/latest">
+  </a></br>
+  </br>
 </p>
 
 A web application for generating synthetic security events and metrics to feed Splunk Enterprise Security, Splunk ITSI, and Cribl for SIEM/SOAR content development and testing.
