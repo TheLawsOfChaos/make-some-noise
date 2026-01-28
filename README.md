@@ -15,9 +15,6 @@
   <a href="https://github.com/TheLawsOfChaos/make-some-noise/blob/main/LICENSE">
     <img src="https://img.shields.io/github/license/TheLawsOfChaos/make-some-noise" alt="License" />
   </a>
-  
-
-
 </p>
 
 A web application for generating synthetic security events and metrics to feed Splunk Enterprise Security, Splunk ITSI, and Cribl for SIEM/SOAR content development and testing.
