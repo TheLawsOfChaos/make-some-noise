@@ -14,7 +14,7 @@ on:
 
 env:
   DOCKERHUB_FRONTEND: thelawsofchaos/makesomenoise-frontend
-  DOCKERHUB_BACKEND: thelawsofchaos/makesomeoise-backend
+  DOCKERHUB_BACKEND: thelawsofchaos/makesomenoise-backend
 
 jobs:
   build-and-push:
