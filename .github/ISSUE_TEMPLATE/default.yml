@@ -1,0 +1,19 @@
+name: 📌 General Issue
+description: Open-ended issue or discussion
+title: "[Issue]: "
+labels: []
+assignees: []
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is this issue about?
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: Add any relevant details, links, or context.
