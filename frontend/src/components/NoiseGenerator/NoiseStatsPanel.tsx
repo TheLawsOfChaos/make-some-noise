@@ -42,13 +42,13 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon, variant = 'default' }: StatCardProps) {
   const variantClasses = {
-    default: 'bg-white',
-    error: 'bg-red-50',
-    success: 'bg-green-50',
+    default: 'bg-white dark:bg-slate-800',
+    error: 'bg-red-50 dark:bg-red-900/20',
+    success: 'bg-green-50 dark:bg-green-900/20',
   };
 
   const iconClasses = {
-    default: 'text-gray-400',
+    default: 'text-gray-400 dark:text-gray-500',
     error: 'text-red-500',
     success: 'text-green-500',
   };
@@ -57,9 +57,9 @@ function StatCard({ label, value, icon, variant = 'default' }: StatCardProps) {
     <div className={`rounded-lg p-3 ${variantClasses[variant]}`}>
       <div className="flex items-center gap-2">
         <div className={`h-5 w-5 ${iconClasses[variant]}`}>{icon}</div>
-        <span className="text-xs text-gray-500">{label}</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400">{label}</span>
       </div>
-      <div className="mt-1 text-xl font-semibold">{value}</div>
+      <div className="mt-1 text-xl font-semibold text-gray-900 dark:text-gray-100">{value}</div>
     </div>
   );
 }
@@ -72,8 +72,8 @@ export default function NoiseStatsPanel({ stats }: Props) {
   const maxCount = sortedEventTypes.length > 0 ? sortedEventTypes[0][1] : 1;
 
   return (
-    <div className="card bg-gray-50">
-      <h3 className="font-semibold mb-4">Generation Statistics</h3>
+    <div className="card bg-gray-50 dark:bg-slate-900">
+      <h3 className="font-semibold mb-4 text-gray-900 dark:text-gray-100">Generation Statistics</h3>
 
       {/* Primary Stats */}
       <div className="grid grid-cols-2 gap-3 mb-4">
@@ -104,15 +104,15 @@ export default function NoiseStatsPanel({ stats }: Props) {
       {/* Breakdown by Event Type */}
       {sortedEventTypes.length > 0 && (
         <div className="mt-4">
-          <h4 className="text-sm font-medium text-gray-600 mb-2">By Event Type</h4>
+          <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">By Event Type</h4>
           <div className="space-y-2">
             {sortedEventTypes.map(([type, count]) => (
               <div key={type}>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600 truncate">{type}</span>
-                  <span className="font-medium">{formatNumber(count)}</span>
+                  <span className="text-gray-600 dark:text-gray-400 truncate">{type}</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{formatNumber(count)}</span>
                 </div>
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-primary-500 rounded-full transition-all duration-300"
                     style={{ width: `${(count / maxCount) * 100}%` }}
@@ -127,10 +127,10 @@ export default function NoiseStatsPanel({ stats }: Props) {
       {/* Error Samples */}
       {stats.error_samples && stats.error_samples.length > 0 && (
         <div className="mt-4">
-          <h4 className="text-sm font-medium text-red-600 mb-2">Recent Errors</h4>
+          <h4 className="text-sm font-medium text-red-600 dark:text-red-400 mb-2">Recent Errors</h4>
           <div className="space-y-1">
             {stats.error_samples.map((error, idx) => (
-              <p key={idx} className="text-xs text-red-500 truncate">
+              <p key={idx} className="text-xs text-red-500 dark:text-red-400 truncate">
                 {error}
               </p>
             ))}

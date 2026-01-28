@@ -270,26 +270,26 @@ export default function NoiseGenerator() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
+        <h1 className="text-2xl font-bold flex items-center gap-2 text-gray-900 dark:text-gray-100">
           <SignalIcon className="h-7 w-7" />
           Noise Generator
         </h1>
-        <p className="text-gray-600 mt-1">
+        <p className="text-gray-600 dark:text-gray-400 mt-1">
           Continuously generate a mix of security events to feed your SIEM.
         </p>
       </div>
 
       {/* Status Banner */}
       {isRunning && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center justify-between">
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="h-3 w-3 bg-green-500 rounded-full animate-pulse"></div>
               <div className="absolute inset-0 h-3 w-3 bg-green-500 rounded-full animate-ping"></div>
             </div>
             <div>
-              <p className="font-medium text-green-800">Noise generation is running</p>
-              <p className="text-sm text-green-600">
+              <p className="font-medium text-green-800 dark:text-green-300">Noise generation is running</p>
+              <p className="text-sm text-green-600 dark:text-green-400">
                 Generating ~{noiseStatus?.stats.events_per_second.toFixed(1)} events/second
               </p>
             </div>
@@ -307,9 +307,9 @@ export default function NoiseGenerator() {
 
       {/* Error Banner */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-center gap-3">
           <ExclamationTriangleIcon className="h-5 w-5 text-red-500" />
-          <p className="text-red-700">{error}</p>
+          <p className="text-red-700 dark:text-red-300">{error}</p>
         </div>
       )}
 
@@ -334,12 +334,12 @@ export default function NoiseGenerator() {
         <div className="space-y-6">
           {/* Configuration Panel */}
           <div className="card">
-            <h3 className="font-semibold mb-4">Configuration</h3>
+            <h3 className="font-semibold mb-4 text-gray-900 dark:text-gray-100">Configuration</h3>
 
             {/* Destination */}
             <div className="mb-4">
               <label className="label">Default Destination</label>
-              <p className="text-xs text-gray-500 mb-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
                 Fallback for sources without a specific destination
               </p>
               <select
@@ -369,7 +369,7 @@ export default function NoiseGenerator() {
                     className={`px-3 py-1 text-sm rounded ${
                       ratePerSecond === preset.value
                         ? 'bg-primary-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        : 'bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
                     } disabled:opacity-50`}
                   >
                     {preset.label}
@@ -389,8 +389,8 @@ export default function NoiseGenerator() {
             </div>
 
             {/* Summary */}
-            <div className="bg-gray-50 rounded-lg p-3 mb-4">
-              <p className="text-sm text-gray-600">
+            <div className="bg-gray-50 dark:bg-slate-900 rounded-lg p-3 mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 <span className="font-medium">{enabledCount}</span> event type
                 {enabledCount !== 1 ? 's' : ''} selected
               </p>
