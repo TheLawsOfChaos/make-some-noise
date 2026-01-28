@@ -1,7 +1,7 @@
 # Make Some Noise
 
 <p align="center">
-  <img src="branding/makesomenoise-dark.png" width="96" alt="Make Some Noise logo" />
+  <img src="branding/logo-dark-1024.png" width="96" alt="Make Some Noise logo" />
 </p>
 
 <p align="center">
