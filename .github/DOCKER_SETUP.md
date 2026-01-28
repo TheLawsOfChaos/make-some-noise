@@ -73,10 +73,10 @@ The CI/CD pipeline determines the version tag in this order:
 ## Published Images
 
 After successful merge, images are available at:
-- `thelawsofchaos/makethenoise-frontend:<version>`
-- `thelawsofchaos/makethenoise-frontend:latest`
-- `thelawsofchaos/makethenoise-backend:<version>`
-- `thelawsofchaos/makethenoise-backend:latest`
+- `thelawsofchaos/makesomenoise-frontend:<version>`
+- `thelawsofchaos/makesomenoise-frontend:latest`
+- `thelawsofchaos/makesomenoise-backend:<version>`
+- `thelawsofchaos/makesomenoise-backend:latest`
 
 ## Troubleshooting
 

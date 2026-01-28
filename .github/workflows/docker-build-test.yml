@@ -54,7 +54,7 @@ jobs:
           context: .
           file: ./Dockerfile.backend
           push: false
-          tags: makethenoise-backend:test
+          tags: makesomenoise-backend:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -64,7 +64,7 @@ jobs:
           context: .
           file: ./Dockerfile.frontend
           push: false
-          tags: makethenoise-frontend:test
+          tags: makesomenoise-frontend:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
