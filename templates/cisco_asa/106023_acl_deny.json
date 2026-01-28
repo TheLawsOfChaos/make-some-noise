@@ -1,0 +1,73 @@
+{
+  "id": "106023",
+  "name": "ACL Deny",
+  "category": "cisco_asa",
+  "event_id": "106023",
+  "format": "syslog",
+  "description": "Deny by access-list",
+  "sourcetype": "cisco:asa",
+  "fields": [
+    {
+      "name": "hostname",
+      "type": "string",
+      "generator": "asa_hostname",
+      "description": "ASA hostname"
+    },
+    {
+      "name": "action",
+      "type": "string",
+      "default": "Deny",
+      "description": "Action taken"
+    },
+    {
+      "name": "protocol",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["tcp", "udp", "icmp"],
+      "description": "Connection protocol"
+    },
+    {
+      "name": "src_interface",
+      "type": "string",
+      "default": "outside",
+      "description": "Source interface"
+    },
+    {
+      "name": "src_ip",
+      "type": "string",
+      "generator": "ipv4_external",
+      "description": "Source IP address"
+    },
+    {
+      "name": "src_port",
+      "type": "integer",
+      "generator": "port",
+      "description": "Source port"
+    },
+    {
+      "name": "dst_interface",
+      "type": "string",
+      "default": "inside",
+      "description": "Destination interface"
+    },
+    {
+      "name": "dst_ip",
+      "type": "string",
+      "generator": "ipv4_internal",
+      "description": "Destination IP address"
+    },
+    {
+      "name": "dst_port",
+      "type": "integer",
+      "generator": "common_port",
+      "description": "Destination port"
+    },
+    {
+      "name": "acl_name",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["INSIDE_IN", "OUTSIDE_IN", "DMZ_IN", "GLOBAL_DENY"],
+      "description": "Access-list name"
+    }
+  ]
+}

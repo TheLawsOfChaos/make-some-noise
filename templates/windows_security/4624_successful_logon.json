@@ -1,0 +1,85 @@
+{
+  "id": "4624",
+  "name": "Successful Logon",
+  "category": "windows_security",
+  "event_id": "4624",
+  "format": "xml",
+  "description": "An account was successfully logged on",
+  "sourcetype": "WinEventLog:Security",
+  "fields": [
+    {
+      "name": "SubjectUserSid",
+      "type": "string",
+      "generator": "sid",
+      "description": "SID of the subject performing the logon"
+    },
+    {
+      "name": "SubjectUserName",
+      "type": "string",
+      "generator": "username",
+      "description": "Account name of the subject"
+    },
+    {
+      "name": "SubjectDomainName",
+      "type": "string",
+      "generator": "domain",
+      "description": "Domain of the subject"
+    },
+    {
+      "name": "TargetUserSid",
+      "type": "string",
+      "generator": "sid",
+      "description": "SID of the account that logged on"
+    },
+    {
+      "name": "TargetUserName",
+      "type": "string",
+      "generator": "username",
+      "description": "Account name that logged on"
+    },
+    {
+      "name": "TargetDomainName",
+      "type": "string",
+      "generator": "domain",
+      "description": "Domain of the account that logged on"
+    },
+    {
+      "name": "LogonType",
+      "type": "integer",
+      "generator": "choice",
+      "choices": [2, 3, 7, 10, 11],
+      "description": "Type of logon (2=Interactive, 3=Network, 7=Unlock, 10=RemoteInteractive, 11=CachedInteractive)"
+    },
+    {
+      "name": "LogonProcessName",
+      "type": "string",
+      "default": "NtLmSsp",
+      "description": "Name of the logon process"
+    },
+    {
+      "name": "AuthenticationPackageName",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["NTLM", "Kerberos", "Negotiate"],
+      "description": "Authentication package used"
+    },
+    {
+      "name": "WorkstationName",
+      "type": "string",
+      "generator": "hostname",
+      "description": "Workstation from which the logon originated"
+    },
+    {
+      "name": "IpAddress",
+      "type": "string",
+      "generator": "ipv4_internal",
+      "description": "IP address of the source workstation"
+    },
+    {
+      "name": "IpPort",
+      "type": "integer",
+      "generator": "port",
+      "description": "Source port number"
+    }
+  ]
+}

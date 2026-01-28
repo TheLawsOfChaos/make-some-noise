@@ -1,0 +1,88 @@
+{
+  "id": "user_login",
+  "name": "User Login Event",
+  "category": "linux_auditbeat",
+  "event_id": "user_login",
+  "format": "json",
+  "description": "User authentication and login events in ECS format",
+  "sourcetype": "auditbeat",
+  "fields": [
+    {
+      "name": "@timestamp",
+      "type": "datetime",
+      "generator": "timestamp_iso",
+      "description": "Event timestamp"
+    },
+    {
+      "name": "event.kind",
+      "type": "string",
+      "default": "event",
+      "description": "Event kind"
+    },
+    {
+      "name": "event.category",
+      "type": "array",
+      "default": ["authentication"],
+      "description": "Event category"
+    },
+    {
+      "name": "event.type",
+      "type": "array",
+      "generator": "choice",
+      "choices": [["start"], ["end"], ["info"]],
+      "description": "Event type"
+    },
+    {
+      "name": "event.action",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["logged-in", "logged-out", "session-opened", "session-closed"],
+      "description": "Event action"
+    },
+    {
+      "name": "event.outcome",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["success", "failure"],
+      "description": "Event outcome"
+    },
+    {
+      "name": "host.name",
+      "type": "string",
+      "generator": "linux_hostname",
+      "description": "Hostname"
+    },
+    {
+      "name": "source.ip",
+      "type": "string",
+      "generator": "ipv4_external",
+      "description": "Source IP address"
+    },
+    {
+      "name": "source.port",
+      "type": "integer",
+      "generator": "port",
+      "description": "Source port"
+    },
+    {
+      "name": "source.geo.country_iso_code",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["US", "CN", "RU", "DE", "BR", "IN"],
+      "description": "Source country"
+    },
+    {
+      "name": "user.name",
+      "type": "string",
+      "generator": "linux_user",
+      "description": "Username"
+    },
+    {
+      "name": "system.auth.ssh.method",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["publickey", "password", "keyboard-interactive"],
+      "description": "SSH authentication method"
+    }
+  ]
+}

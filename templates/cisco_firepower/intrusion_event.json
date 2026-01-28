@@ -1,0 +1,89 @@
+{
+  "id": "intrusion",
+  "name": "Intrusion Event",
+  "category": "cisco_firepower",
+  "event_id": "intrusion",
+  "format": "json",
+  "description": "IDS/IPS intrusion detection event",
+  "sourcetype": "cisco:firepower:syslog",
+  "fields": [
+    {
+      "name": "timestamp",
+      "type": "datetime",
+      "generator": "timestamp_iso",
+      "description": "Event timestamp"
+    },
+    {
+      "name": "sensor_name",
+      "type": "string",
+      "generator": "ftd_hostname",
+      "description": "Sensor name"
+    },
+    {
+      "name": "rule_id",
+      "type": "integer",
+      "generator": "random_int",
+      "min": 1000000,
+      "max": 9999999,
+      "description": "Snort rule SID"
+    },
+    {
+      "name": "classification",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["attempted-recon", "attempted-user", "attempted-admin", "trojan-activity", "web-application-attack"],
+      "description": "Attack classification"
+    },
+    {
+      "name": "priority",
+      "type": "integer",
+      "generator": "choice",
+      "choices": [1, 2, 3, 4],
+      "description": "Event priority"
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "generator": "intrusion_message",
+      "description": "Alert message"
+    },
+    {
+      "name": "src_ip",
+      "type": "string",
+      "generator": "ipv4_external",
+      "description": "Source IP"
+    },
+    {
+      "name": "src_port",
+      "type": "integer",
+      "generator": "port",
+      "description": "Source port"
+    },
+    {
+      "name": "dst_ip",
+      "type": "string",
+      "generator": "ipv4_internal",
+      "description": "Destination IP"
+    },
+    {
+      "name": "dst_port",
+      "type": "integer",
+      "generator": "common_port",
+      "description": "Destination port"
+    },
+    {
+      "name": "protocol",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["TCP", "UDP", "ICMP"],
+      "description": "Protocol"
+    },
+    {
+      "name": "action",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["Blocked", "Would Have Blocked", "Allowed"],
+      "description": "Action taken"
+    }
+  ]
+}

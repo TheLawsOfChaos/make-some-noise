@@ -1,0 +1,37 @@
+# Build stage
+FROM golang:1.21-alpine AS builder
+
+WORKDIR /app
+
+# Install git for fetching dependencies
+RUN apk add --no-cache git
+
+# Copy go mod files
+COPY backend/go.mod backend/go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
+COPY backend/ .
+
+# Build the application
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o siem-event-generator .
+
+# Runtime stage
+FROM alpine:3.19
+
+WORKDIR /app
+
+# Add ca-certificates for HTTPS and create output directory
+RUN apk --no-cache add ca-certificates && \
+    mkdir -p /tmp/output
+
+# Copy binary from builder
+COPY --from=builder /app/siem-event-generator .
+
+# Expose port
+EXPOSE 8080
+
+# Run the application
+CMD ["./siem-event-generator"]

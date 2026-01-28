@@ -1,0 +1,99 @@
+{
+  "id": "process",
+  "name": "Process Event",
+  "category": "linux_auditbeat",
+  "event_id": "process",
+  "format": "json",
+  "description": "Process execution and fork events in ECS format",
+  "sourcetype": "auditbeat",
+  "fields": [
+    {
+      "name": "@timestamp",
+      "type": "datetime",
+      "generator": "timestamp_iso",
+      "description": "Event timestamp"
+    },
+    {
+      "name": "event.kind",
+      "type": "string",
+      "default": "event",
+      "description": "Event kind"
+    },
+    {
+      "name": "event.category",
+      "type": "array",
+      "default": ["process"],
+      "description": "Event category"
+    },
+    {
+      "name": "event.type",
+      "type": "array",
+      "generator": "choice",
+      "choices": [["start"], ["end"], ["info"]],
+      "description": "Event type"
+    },
+    {
+      "name": "event.action",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["executed", "fork", "exec"],
+      "description": "Event action"
+    },
+    {
+      "name": "host.name",
+      "type": "string",
+      "generator": "linux_hostname",
+      "description": "Hostname"
+    },
+    {
+      "name": "host.os.type",
+      "type": "string",
+      "default": "linux",
+      "description": "OS type"
+    },
+    {
+      "name": "process.pid",
+      "type": "integer",
+      "generator": "random_int",
+      "min": 1000,
+      "max": 65535,
+      "description": "Process ID"
+    },
+    {
+      "name": "process.name",
+      "type": "string",
+      "generator": "linux_process_name",
+      "description": "Process name"
+    },
+    {
+      "name": "process.executable",
+      "type": "string",
+      "generator": "linux_path",
+      "description": "Executable path"
+    },
+    {
+      "name": "process.command_line",
+      "type": "string",
+      "generator": "linux_command",
+      "description": "Full command line"
+    },
+    {
+      "name": "process.working_directory",
+      "type": "string",
+      "generator": "linux_directory",
+      "description": "Working directory"
+    },
+    {
+      "name": "user.name",
+      "type": "string",
+      "generator": "linux_user",
+      "description": "Username"
+    },
+    {
+      "name": "user.id",
+      "type": "string",
+      "generator": "uid",
+      "description": "User ID"
+    }
+  ]
+}

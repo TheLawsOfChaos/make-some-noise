@@ -1,0 +1,105 @@
+{
+  "id": "alert",
+  "name": "Alert Event",
+  "category": "suricata",
+  "event_id": "alert",
+  "format": "json",
+  "description": "Suricata IDS alert event in EVE JSON format",
+  "sourcetype": "suricata",
+  "fields": [
+    {
+      "name": "timestamp",
+      "type": "datetime",
+      "generator": "timestamp_suricata",
+      "format": "2006-01-02T15:04:05.000000-0700",
+      "description": "Event timestamp"
+    },
+    {
+      "name": "flow_id",
+      "type": "integer",
+      "generator": "random_int",
+      "min": 1000000000000,
+      "max": 9999999999999,
+      "description": "Unique flow identifier"
+    },
+    {
+      "name": "in_iface",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["eth0", "eth1", "eth2", "eth3"],
+      "description": "Input interface"
+    },
+    {
+      "name": "event_type",
+      "type": "string",
+      "default": "alert",
+      "description": "Event type"
+    },
+    {
+      "name": "src_ip",
+      "type": "string",
+      "generator": "ipv4_external",
+      "description": "Source IP"
+    },
+    {
+      "name": "src_port",
+      "type": "integer",
+      "generator": "port",
+      "description": "Source port"
+    },
+    {
+      "name": "dest_ip",
+      "type": "string",
+      "generator": "ipv4_internal",
+      "description": "Destination IP"
+    },
+    {
+      "name": "dest_port",
+      "type": "integer",
+      "generator": "common_port",
+      "description": "Destination port"
+    },
+    {
+      "name": "proto",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["TCP", "UDP"],
+      "description": "Protocol"
+    },
+    {
+      "name": "alert.action",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["allowed", "blocked"],
+      "description": "Action taken"
+    },
+    {
+      "name": "alert.signature_id",
+      "type": "integer",
+      "generator": "random_int",
+      "min": 2000000,
+      "max": 2999999,
+      "description": "Signature ID"
+    },
+    {
+      "name": "alert.signature",
+      "type": "string",
+      "generator": "suricata_signature",
+      "description": "Signature message"
+    },
+    {
+      "name": "alert.category",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["Potentially Bad Traffic", "A Network Trojan was Detected", "Attempted Information Leak"],
+      "description": "Alert category"
+    },
+    {
+      "name": "alert.severity",
+      "type": "integer",
+      "generator": "choice",
+      "choices": [1, 2, 3],
+      "description": "Severity level"
+    }
+  ]
+}

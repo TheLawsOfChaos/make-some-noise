@@ -1,0 +1,65 @@
+{
+  "id": "4728",
+  "name": "Member Added to Global Group",
+  "category": "microsoft_ad",
+  "event_id": "4728",
+  "format": "xml",
+  "description": "A member was added to a security-enabled global group",
+  "sourcetype": "WinEventLog:Security",
+  "fields": [
+    {
+      "name": "MemberName",
+      "type": "string",
+      "generator": "distinguished_name",
+      "description": "Distinguished name of the added member"
+    },
+    {
+      "name": "MemberSid",
+      "type": "string",
+      "generator": "sid",
+      "description": "SID of the added member"
+    },
+    {
+      "name": "TargetUserName",
+      "type": "string",
+      "generator": "group_name",
+      "description": "Name of the group"
+    },
+    {
+      "name": "TargetDomainName",
+      "type": "string",
+      "generator": "domain",
+      "description": "Domain of the group"
+    },
+    {
+      "name": "TargetSid",
+      "type": "string",
+      "generator": "sid",
+      "description": "SID of the group"
+    },
+    {
+      "name": "SubjectUserSid",
+      "type": "string",
+      "generator": "sid",
+      "description": "SID of the account that performed the action"
+    },
+    {
+      "name": "SubjectUserName",
+      "type": "string",
+      "generator": "username",
+      "description": "Account that performed the action"
+    },
+    {
+      "name": "SubjectDomainName",
+      "type": "string",
+      "generator": "domain",
+      "description": "Domain of the account"
+    },
+    {
+      "name": "SubjectLogonId",
+      "type": "string",
+      "generator": "logon_id",
+      "description": "Logon ID"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "id": "4720",
+  "name": "User Account Created",
+  "category": "microsoft_ad",
+  "event_id": "4720",
+  "format": "xml",
+  "description": "A user account was created",
+  "sourcetype": "WinEventLog:Security",
+  "fields": [
+    {
+      "name": "TargetUserName",
+      "type": "string",
+      "generator": "username",
+      "description": "Name of the created account"
+    },
+    {
+      "name": "TargetDomainName",
+      "type": "string",
+      "generator": "domain",
+      "description": "Domain of the created account"
+    },
+    {
+      "name": "TargetSid",
+      "type": "string",
+      "generator": "sid",
+      "description": "SID of the created account"
+    },
+    {
+      "name": "SubjectUserSid",
+      "type": "string",
+      "generator": "sid",
+      "description": "SID of the account that created the user"
+    },
+    {
+      "name": "SubjectUserName",
+      "type": "string",
+      "generator": "username",
+      "description": "Account that created the user"
+    },
+    {
+      "name": "SubjectDomainName",
+      "type": "string",
+      "generator": "domain",
+      "description": "Domain of the creator account"
+    },
+    {
+      "name": "SubjectLogonId",
+      "type": "string",
+      "generator": "logon_id",
+      "description": "Logon ID of the creator"
+    },
+    {
+      "name": "SamAccountName",
+      "type": "string",
+      "generator": "username",
+      "description": "SAM account name"
+    },
+    {
+      "name": "DisplayName",
+      "type": "string",
+      "generator": "full_name",
+      "description": "Display name"
+    },
+    {
+      "name": "UserPrincipalName",
+      "type": "string",
+      "generator": "upn",
+      "description": "User principal name"
+    },
+    {
+      "name": "PrimaryGroupId",
+      "type": "string",
+      "default": "513",
+      "description": "Primary group ID (513 = Domain Users)"
+    }
+  ]
+}

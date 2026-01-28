@@ -1,0 +1,8 @@
+output/*.log
+frontend/node_modules/
+frontend/dist/
+**/node_modules
+**/dist
+.git
+.gitlab
+*.log

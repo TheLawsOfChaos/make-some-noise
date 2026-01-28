@@ -1,0 +1,70 @@
+{
+  "id": "302013",
+  "name": "Connection Built (Inbound)",
+  "category": "cisco_asa",
+  "event_id": "302013",
+  "format": "syslog",
+  "description": "Built inbound TCP/UDP connection",
+  "sourcetype": "cisco:asa",
+  "fields": [
+    {
+      "name": "hostname",
+      "type": "string",
+      "generator": "asa_hostname",
+      "description": "ASA hostname"
+    },
+    {
+      "name": "protocol",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["TCP", "UDP"],
+      "description": "Connection protocol"
+    },
+    {
+      "name": "connection_id",
+      "type": "integer",
+      "generator": "random_int",
+      "min": 100000,
+      "max": 9999999,
+      "description": "Unique connection ID"
+    },
+    {
+      "name": "src_interface",
+      "type": "string",
+      "default": "outside",
+      "description": "Source interface"
+    },
+    {
+      "name": "src_ip",
+      "type": "string",
+      "generator": "ipv4_external",
+      "description": "Source IP address"
+    },
+    {
+      "name": "src_port",
+      "type": "integer",
+      "generator": "port",
+      "description": "Source port"
+    },
+    {
+      "name": "dst_interface",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["inside", "dmz", "management"],
+      "description": "Destination interface"
+    },
+    {
+      "name": "dst_ip",
+      "type": "string",
+      "generator": "ipv4_internal",
+      "description": "Destination IP address"
+    },
+    {
+      "name": "dst_port",
+      "type": "integer",
+      "generator": "common_port",
+      "description": "Destination port"
+    }
+  ],
+  "template": "<%d>%s %%ASA-6-302013: Built inbound %s connection %d for %s:%s/%d (%s/%d) to %s:%s/%d (%s/%d)"
+}

@@ -1,0 +1,80 @@
+{
+  "id": "3",
+  "name": "Network Connection",
+  "category": "windows_sysmon",
+  "event_id": "3",
+  "format": "xml",
+  "description": "TCP/UDP network connection detected",
+  "sourcetype": "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+  "fields": [
+    {
+      "name": "UtcTime",
+      "type": "datetime",
+      "generator": "timestamp",
+      "description": "UTC time of connection"
+    },
+    {
+      "name": "ProcessGuid",
+      "type": "string",
+      "generator": "guid",
+      "description": "Process GUID"
+    },
+    {
+      "name": "ProcessId",
+      "type": "integer",
+      "generator": "random_int",
+      "min": 1000,
+      "max": 65535,
+      "description": "Process ID"
+    },
+    {
+      "name": "Image",
+      "type": "string",
+      "generator": "windows_path",
+      "description": "Executable making the connection"
+    },
+    {
+      "name": "User",
+      "type": "string",
+      "generator": "domain_user",
+      "description": "User context"
+    },
+    {
+      "name": "Protocol",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["tcp", "udp"],
+      "description": "Network protocol"
+    },
+    {
+      "name": "Initiated",
+      "type": "boolean",
+      "generator": "random_bool",
+      "description": "Whether connection was initiated by this host"
+    },
+    {
+      "name": "SourceIp",
+      "type": "string",
+      "generator": "ipv4_internal",
+      "description": "Source IP address"
+    },
+    {
+      "name": "SourcePort",
+      "type": "integer",
+      "generator": "port",
+      "description": "Source port"
+    },
+    {
+      "name": "DestinationIp",
+      "type": "string",
+      "generator": "ipv4_external",
+      "description": "Destination IP address"
+    },
+    {
+      "name": "DestinationPort",
+      "type": "integer",
+      "generator": "common_port",
+      "description": "Destination port"
+    }
+  ]
+}

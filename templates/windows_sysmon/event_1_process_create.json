@@ -1,0 +1,95 @@
+{
+  "id": "1",
+  "name": "Process Create",
+  "category": "windows_sysmon",
+  "event_id": "1",
+  "format": "xml",
+  "description": "Process creation event with command line and hash information",
+  "sourcetype": "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+  "fields": [
+    {
+      "name": "UtcTime",
+      "type": "datetime",
+      "generator": "timestamp",
+      "format": "2006-01-02 15:04:05.000",
+      "description": "UTC time of event"
+    },
+    {
+      "name": "ProcessGuid",
+      "type": "string",
+      "generator": "guid",
+      "description": "Unique process GUID"
+    },
+    {
+      "name": "ProcessId",
+      "type": "integer",
+      "generator": "random_int",
+      "min": 1000,
+      "max": 65535,
+      "description": "Process ID"
+    },
+    {
+      "name": "Image",
+      "type": "string",
+      "generator": "windows_path",
+      "description": "Full path to executable"
+    },
+    {
+      "name": "CommandLine",
+      "type": "string",
+      "generator": "command_line",
+      "description": "Command line arguments"
+    },
+    {
+      "name": "CurrentDirectory",
+      "type": "string",
+      "default": "C:\\Windows\\System32\\",
+      "description": "Current working directory"
+    },
+    {
+      "name": "User",
+      "type": "string",
+      "generator": "domain_user",
+      "description": "User running the process"
+    },
+    {
+      "name": "IntegrityLevel",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["Low", "Medium", "High", "System"],
+      "description": "Process integrity level"
+    },
+    {
+      "name": "Hashes",
+      "type": "string",
+      "generator": "sha256_hash",
+      "description": "SHA256 hash of executable"
+    },
+    {
+      "name": "ParentProcessGuid",
+      "type": "string",
+      "generator": "guid",
+      "description": "Parent process GUID"
+    },
+    {
+      "name": "ParentProcessId",
+      "type": "integer",
+      "generator": "random_int",
+      "min": 1000,
+      "max": 65535,
+      "description": "Parent process ID"
+    },
+    {
+      "name": "ParentImage",
+      "type": "string",
+      "generator": "windows_path",
+      "description": "Parent process executable path"
+    },
+    {
+      "name": "ParentCommandLine",
+      "type": "string",
+      "generator": "command_line",
+      "description": "Parent process command line"
+    }
+  ]
+}

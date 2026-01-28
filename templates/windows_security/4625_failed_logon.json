@@ -1,0 +1,56 @@
+{
+  "id": "4625",
+  "name": "Failed Logon",
+  "category": "windows_security",
+  "event_id": "4625",
+  "format": "xml",
+  "description": "An account failed to log on",
+  "sourcetype": "WinEventLog:Security",
+  "fields": [
+    {
+      "name": "TargetUserName",
+      "type": "string",
+      "generator": "username",
+      "description": "Account name for which logon was attempted"
+    },
+    {
+      "name": "TargetDomainName",
+      "type": "string",
+      "generator": "domain",
+      "description": "Domain of the target account"
+    },
+    {
+      "name": "Status",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["0xc000006d", "0xc000006a", "0xc0000234", "0xc0000072"],
+      "description": "Failure status code"
+    },
+    {
+      "name": "FailureReason",
+      "type": "string",
+      "generator": "choice",
+      "choices": ["%%2313", "%%2304", "%%2308", "%%2309", "%%2310"],
+      "description": "Failure reason code"
+    },
+    {
+      "name": "LogonType",
+      "type": "integer",
+      "generator": "choice",
+      "choices": [2, 3, 7, 10],
+      "description": "Type of logon attempted"
+    },
+    {
+      "name": "IpAddress",
+      "type": "string",
+      "generator": "ipv4_external",
+      "description": "Source IP address"
+    },
+    {
+      "name": "IpPort",
+      "type": "integer",
+      "generator": "port",
+      "description": "Source port number"
+    }
+  ]
+}
