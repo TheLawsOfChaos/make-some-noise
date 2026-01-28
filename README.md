@@ -1,5 +1,21 @@
 # Make Some Noise
 
+<p align="center">
+  <img src="branding/social-preview-1280x640.png" alt="Make Some Noise logo" />
+</p>
+
+<p align="center">
+  <a href="https://github.com/TheLawsOfChaos/make-some-noise/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/TheLawsOfChaos/make-some-noise/docker-publish.yml?branch=main" alt="Build" />
+  </a>
+  <a href="https://github.com/TheLawsOfChaos/make-some-noise/releases">
+    <img src="https://img.shields.io/github/v/release/TheLawsOfChaos/make-some-noise" alt="Release" />
+  </a>
+  <a href="https://github.com/TheLawsOfChaos/make-some-noise/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/TheLawsOfChaos/make-some-noise" alt="License" />
+  </a>
+</p>
+
 A web application for generating synthetic security events and metrics to feed Splunk Enterprise Security, Splunk ITSI, and Cribl for SIEM/SOAR content development and testing.
 
 ## Features

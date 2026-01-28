@@ -111,11 +111,11 @@ export default function EventSourceSelector({
     return (
       <div className="card">
         <div className="animate-pulse">
-          <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="h-6 bg-gray-200 dark:bg-slate-700 rounded w-1/3 mb-4"></div>
           <div className="space-y-3">
-            <div className="h-4 bg-gray-200 rounded"></div>
-            <div className="h-4 bg-gray-200 rounded"></div>
-            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 dark:bg-slate-700 rounded"></div>
+            <div className="h-4 bg-gray-200 dark:bg-slate-700 rounded"></div>
+            <div className="h-4 bg-gray-200 dark:bg-slate-700 rounded"></div>
           </div>
         </div>
       </div>
@@ -128,8 +128,8 @@ export default function EventSourceSelector({
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold mb-4">Event Sources</h2>
-      <p className="text-sm text-gray-500 mb-4">
+      <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Event Sources</h2>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
         Select which event types to include in noise generation. Each event type can have its own destination, or use the global default. Expand to select specific templates.
       </p>
 
@@ -139,31 +139,31 @@ export default function EventSourceSelector({
           const categoryState = getCategoryState(category);
 
           return (
-            <div key={category} className="border rounded-lg overflow-hidden">
+            <div key={category} className="border dark:border-slate-700 rounded-lg overflow-hidden">
               {/* Category Header */}
               <div
-                className={`flex items-center justify-between px-4 py-3 bg-gray-50 cursor-pointer hover:bg-gray-100 ${
+                className={`flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-slate-800 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 ${
                   disabled ? 'opacity-50' : ''
                 }`}
                 onClick={() => toggleCategory(category)}
               >
                 <div className="flex items-center gap-2">
                   {isExpanded ? (
-                    <ChevronDownIcon className="h-5 w-5 text-gray-500" />
+                    <ChevronDownIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                   ) : (
-                    <ChevronRightIcon className="h-5 w-5 text-gray-500" />
+                    <ChevronRightIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                   )}
-                  <span className="font-medium">{formatCategoryName(category)}</span>
-                  <span className="text-sm text-gray-500">({sources.length})</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{formatCategoryName(category)}</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">({sources.length})</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <span
                     className={`text-xs px-2 py-1 rounded ${
                       categoryState === 'all'
-                        ? 'bg-green-100 text-green-700'
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
                         : categoryState === 'some'
-                        ? 'bg-yellow-100 text-yellow-700'
-                        : 'bg-gray-100 text-gray-500'
+                        ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                        : 'bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400'
                     }`}
                   >
                     {categoryState === 'all'
@@ -177,7 +177,7 @@ export default function EventSourceSelector({
                       e.stopPropagation();
                       toggleAllInCategory(category);
                     }}
-                    className="text-sm text-primary-600 hover:text-primary-800 font-medium"
+                    className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 font-medium"
                     disabled={disabled}
                   >
                     Toggle All
@@ -196,19 +196,19 @@ export default function EventSourceSelector({
                     const eventState = getEventTypeState(eventTypeId, source.templates);
 
                     return (
-                      <div key={eventTypeId} className="bg-white">
+                      <div key={eventTypeId} className="bg-white dark:bg-slate-800">
                         {/* Event Type Row */}
                         <div className="flex items-center gap-3 px-4 py-3">
                           {/* Expand button */}
                           <button
                             onClick={() => toggleEventTypeExpand(eventTypeId)}
-                            className="p-1 hover:bg-gray-100 rounded"
+                            className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded"
                             disabled={disabled}
                           >
                             {isEventExpanded ? (
-                              <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+                              <ChevronDownIcon className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                             ) : (
-                              <ChevronRightIcon className="h-4 w-4 text-gray-400" />
+                              <ChevronRightIcon className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                             )}
                           </button>
 
@@ -226,16 +226,16 @@ export default function EventSourceSelector({
                           {/* Event Type Info */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="font-medium text-sm">
+                              <span className="font-medium text-sm text-gray-900 dark:text-gray-100">
                                 {source.event_type.name}
                               </span>
                               {eventState === 'some' && (
-                                <span className="text-xs text-yellow-600">
+                                <span className="text-xs text-yellow-600 dark:text-yellow-400">
                                   (partial)
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-gray-500 truncate">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                               {source.templates.length} template
                               {source.templates.length !== 1 ? 's' : ''}
                             </p>
@@ -252,7 +252,7 @@ export default function EventSourceSelector({
                                     onDestinationChange(eventTypeId, e.target.value)
                                   }
                                   disabled={disabled}
-                                  className="text-xs border rounded px-2 py-1 bg-white focus:ring-primary-500 focus:border-primary-500"
+                                  className="text-xs border dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-slate-700 dark:text-gray-200 focus:ring-primary-500 focus:border-primary-500"
                                 >
                                   <option value="">
                                     {globalDestinationId
@@ -278,9 +278,9 @@ export default function EventSourceSelector({
                                     onWeightChange(eventTypeId, parseInt(e.target.value))
                                   }
                                   disabled={disabled}
-                                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                  className="w-full h-2 bg-gray-200 dark:bg-slate-600 rounded-lg appearance-none cursor-pointer"
                                 />
-                                <span className="text-xs text-gray-500 w-8 text-right">
+                                <span className="text-xs text-gray-500 dark:text-gray-400 w-8 text-right">
                                   {sourceConfig?.weight || 10}
                                 </span>
                               </div>
@@ -290,7 +290,7 @@ export default function EventSourceSelector({
 
                         {/* Templates (expanded) */}
                         {isEventExpanded && (
-                          <div className="bg-gray-50 px-4 py-2 space-y-1">
+                          <div className="bg-gray-50 dark:bg-slate-900 px-4 py-2 space-y-1">
                             {source.templates.map((template) => {
                               const templateEnabled = isTemplateEnabled(
                                 eventTypeId,
@@ -300,7 +300,7 @@ export default function EventSourceSelector({
                               return (
                                 <label
                                   key={template.id}
-                                  className="flex items-center gap-3 py-1 px-8 hover:bg-gray-100 rounded cursor-pointer"
+                                  className="flex items-center gap-3 py-1 px-8 hover:bg-gray-100 dark:hover:bg-slate-800 rounded cursor-pointer"
                                 >
                                   <input
                                     type="checkbox"
@@ -313,17 +313,17 @@ export default function EventSourceSelector({
                                       )
                                     }
                                     disabled={disabled || !isEnabled}
-                                    className="h-3 w-3 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+                                    className="h-3 w-3 text-primary-600 rounded border-gray-300 dark:border-slate-600 focus:ring-primary-500"
                                   />
                                   <span
                                     className={`text-sm ${
-                                      !isEnabled ? 'text-gray-400' : ''
+                                      !isEnabled ? 'text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-gray-100'
                                     }`}
                                   >
                                     {template.name}
                                   </span>
                                   {template.event_id && (
-                                    <span className="text-xs text-gray-400">
+                                    <span className="text-xs text-gray-400 dark:text-gray-500">
                                       ({template.event_id})
                                     </span>
                                   )}

@@ -105,13 +105,13 @@ export default function Generate() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">Generate Events</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-8">Generate Events</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Configuration Panel */}
         <div className="space-y-6">
           <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Event Configuration</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Event Configuration</h2>
 
             {/* Event Type */}
             <div className="mb-4">
@@ -146,7 +146,7 @@ export default function Generate() {
                   ))}
                 </select>
                 {templates.find((t) => t.id === selectedTemplate)?.description && (
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     {templates.find((t) => t.id === selectedTemplate)?.description}
                   </p>
                 )}
@@ -218,8 +218,8 @@ export default function Generate() {
             <div
               className={`card ${
                 result.success
-                  ? 'border-green-200 bg-green-50'
-                  : 'border-red-200 bg-red-50'
+                  ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20'
+                  : 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20'
               }`}
             >
               <div className="flex items-start gap-3">
@@ -231,14 +231,14 @@ export default function Generate() {
                 <div>
                   <h3
                     className={`font-medium ${
-                      result.success ? 'text-green-800' : 'text-red-800'
+                      result.success ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300'
                     }`}
                   >
                     {result.success ? 'Generation Complete' : 'Generation Failed'}
                   </h3>
                   <p
                     className={`text-sm ${
-                      result.success ? 'text-green-600' : 'text-red-600'
+                      result.success ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                     }`}
                   >
                     Created: {result.events_created} events
@@ -246,7 +246,7 @@ export default function Generate() {
                     {result.destination && ` to ${result.destination}`}
                   </p>
                   {result.errors && result.errors.length > 0 && (
-                    <ul className="mt-2 text-sm text-red-600">
+                    <ul className="mt-2 text-sm text-red-600 dark:text-red-400">
                       {result.errors.map((err, i) => (
                         <li key={i}>{err}</li>
                       ))}
@@ -260,19 +260,19 @@ export default function Generate() {
 
         {/* Preview Panel */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Event Preview</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Event Preview</h2>
           {preview ? (
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <span className="px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded-full">
+                <span className="px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-xs rounded-full">
                   {preview.type}
                 </span>
                 {preview.event_id && (
-                  <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                  <span className="px-2 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs rounded-full">
                     ID: {preview.event_id}
                   </span>
                 )}
-                <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                <span className="px-2 py-1 bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs rounded-full">
                   {preview.sourcetype}
                 </span>
               </div>
@@ -281,7 +281,7 @@ export default function Generate() {
               </pre>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+            <div className="flex flex-col items-center justify-center h-64 text-gray-400 dark:text-gray-500">
               <EyeIcon className="h-12 w-12 mb-4" />
               <p>Select an event type and click Preview</p>
             </div>

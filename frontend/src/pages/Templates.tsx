@@ -70,7 +70,7 @@ export default function Templates() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">Event Templates</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-8">Event Templates</h1>
 
       {/* Filters */}
       <div className="card mb-8">
@@ -106,25 +106,25 @@ export default function Templates() {
       <div className="space-y-8">
         {Object.entries(groupedTemplates).map(([category, categoryTemplates]) => (
           <div key={category}>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <DocumentTextIcon className="h-5 w-5 text-gray-400" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+              <DocumentTextIcon className="h-5 w-5 text-gray-400 dark:text-gray-500" />
               {CATEGORIES.find((c) => c.id === category)?.label || category}
-              <span className="text-sm font-normal text-gray-400">
+              <span className="text-sm font-normal text-gray-400 dark:text-gray-500">
                 ({categoryTemplates.length})
               </span>
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {categoryTemplates.map((template) => (
-                <div key={template.id} className="card hover:border-primary-300 transition-colors">
+                <div key={template.id} className="card hover:border-primary-300 dark:hover:border-primary-600 transition-colors">
                   <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-medium text-gray-900">{template.name}</h3>
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">{template.name}</h3>
                     <div className="flex gap-1">
                       <span
                         className={`px-2 py-0.5 text-xs rounded-full ${
                           template.source === 'custom'
-                            ? 'bg-purple-100 text-purple-700'
-                            : 'bg-gray-100 text-gray-600'
+                            ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                            : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300'
                         }`}
                       >
                         {template.source || 'builtin'}
@@ -133,16 +133,16 @@ export default function Templates() {
                   </div>
 
                   {template.description && (
-                    <p className="text-sm text-gray-500 mb-3">{template.description}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{template.description}</p>
                   )}
 
-                  <div className="flex items-center gap-2 text-xs text-gray-400">
+                  <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
                     {template.event_id && (
-                      <span className="px-2 py-0.5 bg-gray-100 rounded">
+                      <span className="px-2 py-0.5 bg-gray-100 dark:bg-slate-700 rounded">
                         ID: {template.event_id}
                       </span>
                     )}
-                    <span className="px-2 py-0.5 bg-gray-100 rounded">{template.format}</span>
+                    <span className="px-2 py-0.5 bg-gray-100 dark:bg-slate-700 rounded">{template.format}</span>
                   </div>
                 </div>
               ))}
@@ -151,15 +151,15 @@ export default function Templates() {
         ))}
 
         {filteredTemplates.length === 0 && (
-          <div className="card text-center text-gray-500 py-12">
-            <DocumentTextIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+          <div className="card text-center text-gray-500 dark:text-gray-400 py-12">
+            <DocumentTextIcon className="h-12 w-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
             <p>No templates found matching your criteria.</p>
           </div>
         )}
       </div>
 
       {/* Summary */}
-      <div className="mt-8 text-center text-sm text-gray-500">
+      <div className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
         Showing {filteredTemplates.length} of {templates.length} templates
       </div>
     </div>
