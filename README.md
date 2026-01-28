@@ -20,11 +20,11 @@
 <p align="center">
   <a href="https://hub.docker.com/r/thelawsofchaos/makesomenoise-frontend">
     <img alt="Docker Image Size (tag) - frontend" src="https://img.shields.io/docker/image-size/thelawsofchaos/makesomenoise-frontend/latest?label=FrontEnd">
-  </a></br>
+  </a><br />
   <a href="https://hub.docker.com/r/thelawsofchaos/makesomenoise-backend">
     <img alt="Docker Image Size (tag) - backend" src="https://img.shields.io/docker/image-size/thelawsofchaos/makesomenoise-backend/latest?label=BackEnd">
-  </a></br>
-  </br>
+  </a><br />
+  <br />
 </p>
 
 A web application for generating synthetic security events and metrics to feed Splunk Enterprise Security, Splunk ITSI, and Cribl for SIEM/SOAR content development and testing.
