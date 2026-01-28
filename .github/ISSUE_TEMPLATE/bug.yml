@@ -1,0 +1,52 @@
+name: 🐞 Bug Report
+description: Report something that is broken or not working as expected
+title: "[Bug]: "
+labels: ["bug"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please be as specific as possible.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the issue and what you expected to happen instead.
+      placeholder: Clear and concise description…
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: How can someone reproduce this issue?
+      placeholder: |
+        1. Go to…
+        2. Click…
+        3. Observe…
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Screenshots
+      description: Include logs, screenshots, or error output if applicable.
+      render: shell
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: OS, version, browser, runtime, etc.
+
+  - type: checkboxes
+    id: validation
+    attributes:
+      label: Validation
+      options:
+        - label: I have searched for existing issues
+          required: true
