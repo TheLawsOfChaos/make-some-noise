@@ -1,0 +1,75 @@
+name: Test Docker Build (PR)
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Preview version from PR title
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          echo "PR Title: $PR_TITLE"
+
+          # Extract version from PR title
+          VERSION=$(echo "$PR_TITLE" | grep -oE '(v?[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?)' | head -1 | sed 's/^v//')
+
+          if [ -n "$VERSION" ]; then
+            echo "Version will be: $VERSION"
+          else
+            if [ -f "VERSION" ]; then
+              VERSION=$(cat VERSION | tr -d '[:space:]')
+              echo "Version will be (from VERSION file): $VERSION"
+            else
+              VERSION="0.0.0-$(git rev-parse --short HEAD)"
+              echo "Version will be (fallback): $VERSION"
+            fi
+          fi
+
+          echo "## Version Preview" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "When this PR is merged, the following version will be published:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** \`$VERSION\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Tip:" >> $GITHUB_STEP_SUMMARY
+          echo "To set a specific version, include it in your PR title:" >> $GITHUB_STEP_SUMMARY
+          echo "- \`Release v1.2.3 - Feature description\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`v1.2.3: Bug fixes\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`1.2.3 Update dependencies\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image (test only)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.backend
+          push: false
+          tags: makethenoise-backend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build frontend image (test only)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.frontend
+          push: false
+          tags: makethenoise-frontend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build success summary
+        run: |
+          echo "## Build Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Both Docker images built successfully." >> $GITHUB_STEP_SUMMARY
