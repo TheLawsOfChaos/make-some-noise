@@ -4,11 +4,31 @@ on:
   push:
     branches:
       - main
-  # Allow manual trigger with version override
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+      - 'Dockerfile.frontend'
+      - 'Dockerfile.backend'
+      - 'docker-compose.yml'
+      - 'versions.json'
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Version tag (e.g., 1.2.3)'
+      build_frontend:
+        description: 'Build frontend container'
+        required: false
+        type: boolean
+        default: false
+      build_backend:
+        description: 'Build backend container'
+        required: false
+        type: boolean
+        default: false
+      frontend_version:
+        description: 'Frontend version override (e.g., 1.2.3)'
+        required: false
+        type: string
+      backend_version:
+        description: 'Backend version override (e.g., 1.2.3)'
         required: false
         type: string
 
@@ -17,52 +37,204 @@ env:
   DOCKERHUB_BACKEND: thelawsofchaos/makesomenoise-backend
 
 jobs:
-  build-and-push:
+  detect-changes:
     runs-on: ubuntu-latest
-
+    outputs:
+      build_frontend: ${{ steps.changes.outputs.build_frontend }}
+      build_backend: ${{ steps.changes.outputs.build_backend }}
+      frontend_version: ${{ steps.versions.outputs.frontend_version }}
+      backend_version: ${{ steps.versions.outputs.backend_version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for version detection
+          fetch-depth: 0
 
-      - name: Determine version
-        id: version
+      - name: Detect changed files
+        id: changes
         run: |
-          # Priority 1: Manual workflow dispatch input
-          if [ -n "${{ github.event.inputs.version }}" ]; then
-            VERSION="${{ github.event.inputs.version }}"
-            echo "Version from manual input: $VERSION"
-          else
-            # Priority 2: Extract version from merge commit message (PR title)
-            # GitHub formats merge commits as "Merge pull request #N from ... " followed by PR title
-            # or for squash merges, the commit message IS the PR title
-            COMMIT_MSG=$(git log -1 --pretty=%B)
-            echo "Commit message: $COMMIT_MSG"
+          # For workflow_dispatch, use the inputs
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "build_frontend=${{ github.event.inputs.build_frontend }}" >> $GITHUB_OUTPUT
+            echo "build_backend=${{ github.event.inputs.build_backend }}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
 
-            # Look for version patterns: v1.2.3, 1.2.3, release 1.2.3, version 1.2.3
-            VERSION=$(echo "$COMMIT_MSG" | grep -oE '(v?[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?)' | head -1 | sed 's/^v//')
+          # For push, compare with previous commit
+          BASE_SHA=${{ github.event.before }}
+          HEAD_SHA=${{ github.sha }}
 
-            if [ -n "$VERSION" ]; then
-              echo "Version extracted from commit message: $VERSION"
-            else
-              # Priority 3: Read from VERSION file if it exists
-              if [ -f "VERSION" ]; then
-                VERSION=$(cat VERSION | tr -d '[:space:]')
-                echo "Version from VERSION file: $VERSION"
-              else
-                # Priority 4: Fallback to short commit SHA
-                VERSION="0.0.0-$(git rev-parse --short HEAD)"
-                echo "Version fallback to commit SHA: $VERSION"
+          # Handle initial commit case
+          if [ "$BASE_SHA" == "0000000000000000000000000000000000000000" ]; then
+            echo "Initial commit detected - building both containers"
+            echo "build_frontend=true" >> $GITHUB_OUTPUT
+            echo "build_backend=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "Comparing $BASE_SHA to $HEAD_SHA"
+          CHANGED_FILES=$(git diff --name-only $BASE_SHA $HEAD_SHA)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          BUILD_FRONTEND=false
+          BUILD_BACKEND=false
+
+          # Check for frontend changes
+          if echo "$CHANGED_FILES" | grep -qE '^frontend/|^Dockerfile\.frontend$'; then
+            BUILD_FRONTEND=true
+            echo "Frontend changes detected"
+          fi
+
+          # Check for backend changes
+          if echo "$CHANGED_FILES" | grep -qE '^backend/|^Dockerfile\.backend$'; then
+            BUILD_BACKEND=true
+            echo "Backend changes detected"
+          fi
+
+          # Check docker-compose.yml for service-specific changes
+          if echo "$CHANGED_FILES" | grep -q '^docker-compose\.yml$'; then
+            echo "docker-compose.yml changed - checking which services affected"
+
+            # Get the diff of docker-compose.yml
+            COMPOSE_DIFF=$(git diff $BASE_SHA $HEAD_SHA -- docker-compose.yml 2>/dev/null || echo "")
+
+            if [ -n "$COMPOSE_DIFF" ]; then
+              # Check if frontend service section was modified
+              if echo "$COMPOSE_DIFF" | grep -qE '^\+.*frontend|^\-.*frontend|^\+.*Dockerfile\.frontend|^\-.*Dockerfile\.frontend'; then
+                BUILD_FRONTEND=true
+                echo "docker-compose.yml frontend service changes detected"
+              fi
+
+              # Check if backend service section was modified
+              if echo "$COMPOSE_DIFF" | grep -qE '^\+.*backend|^\-.*backend|^\+.*Dockerfile\.backend|^\-.*Dockerfile\.backend'; then
+                BUILD_BACKEND=true
+                echo "docker-compose.yml backend service changes detected"
+              fi
+
+              # If we can't determine specific service, build both to be safe
+              if [ "$BUILD_FRONTEND" == "false" ] && [ "$BUILD_BACKEND" == "false" ]; then
+                echo "Could not determine specific service changes in docker-compose.yml - building both"
+                BUILD_FRONTEND=true
+                BUILD_BACKEND=true
               fi
             fi
           fi
 
-          # Remove 'v' prefix if present
-          VERSION=$(echo "$VERSION" | sed 's/^v//')
+          echo "build_frontend=$BUILD_FRONTEND" >> $GITHUB_OUTPUT
+          echo "build_backend=$BUILD_BACKEND" >> $GITHUB_OUTPUT
 
-          echo "Final version: $VERSION"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Determine versions
+        id: versions
+        run: |
+          # Read current versions from versions.json
+          CURRENT_FRONTEND=$(jq -r '.frontend' versions.json)
+          CURRENT_BACKEND=$(jq -r '.backend' versions.json)
+
+          echo "Current frontend version: $CURRENT_FRONTEND"
+          echo "Current backend version: $CURRENT_BACKEND"
+
+          # Function to increment patch version
+          increment_patch() {
+            local version=$1
+            local major=$(echo $version | cut -d. -f1)
+            local minor=$(echo $version | cut -d. -f2)
+            local patch=$(echo $version | cut -d. -f3)
+            patch=$((patch + 1))
+            echo "${major}.${minor}.${patch}"
+          }
+
+          # Check for version in commit message
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "Commit message: $COMMIT_MSG"
+
+          # Extract frontend version from commit (format: frontend:1.2.3 or frontend-version:1.2.3)
+          COMMIT_FRONTEND_VERSION=$(echo "$COMMIT_MSG" | grep -oE 'frontend[:-]v?([0-9]+\.[0-9]+\.[0-9]+)' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+
+          # Extract backend version from commit (format: backend:1.2.3 or backend-version:1.2.3)
+          COMMIT_BACKEND_VERSION=$(echo "$COMMIT_MSG" | grep -oE 'backend[:-]v?([0-9]+\.[0-9]+\.[0-9]+)' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+
+          # Determine frontend version
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.frontend_version }}" ]; then
+            FRONTEND_VERSION="${{ github.event.inputs.frontend_version }}"
+            echo "Frontend version from manual input: $FRONTEND_VERSION"
+          elif [ -n "$COMMIT_FRONTEND_VERSION" ]; then
+            FRONTEND_VERSION="$COMMIT_FRONTEND_VERSION"
+            echo "Frontend version from commit message: $FRONTEND_VERSION"
+          elif [ "${{ steps.changes.outputs.build_frontend }}" == "true" ]; then
+            FRONTEND_VERSION=$(increment_patch "$CURRENT_FRONTEND")
+            echo "Frontend version auto-incremented: $FRONTEND_VERSION"
+          else
+            FRONTEND_VERSION="$CURRENT_FRONTEND"
+            echo "Frontend version unchanged: $FRONTEND_VERSION"
+          fi
+
+          # Determine backend version
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.backend_version }}" ]; then
+            BACKEND_VERSION="${{ github.event.inputs.backend_version }}"
+            echo "Backend version from manual input: $BACKEND_VERSION"
+          elif [ -n "$COMMIT_BACKEND_VERSION" ]; then
+            BACKEND_VERSION="$COMMIT_BACKEND_VERSION"
+            echo "Backend version from commit message: $BACKEND_VERSION"
+          elif [ "${{ steps.changes.outputs.build_backend }}" == "true" ]; then
+            BACKEND_VERSION=$(increment_patch "$CURRENT_BACKEND")
+            echo "Backend version auto-incremented: $BACKEND_VERSION"
+          else
+            BACKEND_VERSION="$CURRENT_BACKEND"
+            echo "Backend version unchanged: $BACKEND_VERSION"
+          fi
+
+          # Remove 'v' prefix if present
+          FRONTEND_VERSION=$(echo "$FRONTEND_VERSION" | sed 's/^v//')
+          BACKEND_VERSION=$(echo "$BACKEND_VERSION" | sed 's/^v//')
+
+          echo "Final frontend version: $FRONTEND_VERSION"
+          echo "Final backend version: $BACKEND_VERSION"
+
+          echo "frontend_version=$FRONTEND_VERSION" >> $GITHUB_OUTPUT
+          echo "backend_version=$BACKEND_VERSION" >> $GITHUB_OUTPUT
+
+  build-frontend:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.build_frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.frontend
+          push: true
+          tags: |
+            ${{ env.DOCKERHUB_FRONTEND }}:${{ needs.detect-changes.outputs.frontend_version }}
+            ${{ env.DOCKERHUB_FRONTEND }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+      - name: Output frontend build info
+        run: |
+          echo "Frontend image built: ${{ env.DOCKERHUB_FRONTEND }}:${{ needs.detect-changes.outputs.frontend_version }}"
+
+  build-backend:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.build_backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -80,33 +252,114 @@ jobs:
           file: ./Dockerfile.backend
           push: true
           tags: |
-            ${{ env.DOCKERHUB_BACKEND }}:${{ steps.version.outputs.version }}
+            ${{ env.DOCKERHUB_BACKEND }}:${{ needs.detect-changes.outputs.backend_version }}
             ${{ env.DOCKERHUB_BACKEND }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
 
-      - name: Build and push frontend image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile.frontend
-          push: true
-          tags: |
-            ${{ env.DOCKERHUB_FRONTEND }}:${{ steps.version.outputs.version }}
-            ${{ env.DOCKERHUB_FRONTEND }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          platforms: linux/amd64,linux/arm64
+      - name: Output backend build info
+        run: |
+          echo "Backend image built: ${{ env.DOCKERHUB_BACKEND }}:${{ needs.detect-changes.outputs.backend_version }}"
 
+  update-versions:
+    needs: [detect-changes, build-frontend, build-backend]
+    if: |
+      always() &&
+      github.event_name == 'push' &&
+      (needs.build-frontend.result == 'success' || needs.build-backend.result == 'success')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update versions.json
+        run: |
+          # Read current versions
+          CURRENT_FRONTEND=$(jq -r '.frontend' versions.json)
+          CURRENT_BACKEND=$(jq -r '.backend' versions.json)
+
+          # Get new versions from detect-changes job
+          NEW_FRONTEND="${{ needs.detect-changes.outputs.frontend_version }}"
+          NEW_BACKEND="${{ needs.detect-changes.outputs.backend_version }}"
+
+          # Only update if builds succeeded
+          if [ "${{ needs.build-frontend.result }}" == "success" ]; then
+            FINAL_FRONTEND="$NEW_FRONTEND"
+          else
+            FINAL_FRONTEND="$CURRENT_FRONTEND"
+          fi
+
+          if [ "${{ needs.build-backend.result }}" == "success" ]; then
+            FINAL_BACKEND="$NEW_BACKEND"
+          else
+            FINAL_BACKEND="$CURRENT_BACKEND"
+          fi
+
+          echo "Updating versions.json:"
+          echo "  Frontend: $CURRENT_FRONTEND -> $FINAL_FRONTEND"
+          echo "  Backend: $CURRENT_BACKEND -> $FINAL_BACKEND"
+
+          # Update versions.json
+          jq --arg frontend "$FINAL_FRONTEND" --arg backend "$FINAL_BACKEND" \
+            '.frontend = $frontend | .backend = $backend' versions.json > versions.json.tmp
+          mv versions.json.tmp versions.json
+
+          cat versions.json
+
+      - name: Commit version update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet versions.json; then
+            echo "No version changes to commit"
+          else
+            git add versions.json
+            git commit -m "chore: update container versions [skip ci]"
+            git push
+          fi
+
+  summary:
+    needs: [detect-changes, build-frontend, build-backend, update-versions]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
       - name: Create summary
         run: |
-          echo "## Docker Images Published" >> $GITHUB_STEP_SUMMARY
+          echo "## Docker Images Build Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Version:** \`${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+
+          echo "### Build Triggers" >> $GITHUB_STEP_SUMMARY
+          echo "- **Event:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Frontend build triggered:** ${{ needs.detect-changes.outputs.build_frontend }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Backend build triggered:** ${{ needs.detect-changes.outputs.build_backend }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Images:" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ env.DOCKERHUB_BACKEND }}:${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ env.DOCKERHUB_BACKEND }}:latest\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ env.DOCKERHUB_FRONTEND }}:${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`${{ env.DOCKERHUB_FRONTEND }}:latest\`" >> $GITHUB_STEP_SUMMARY
+
+          echo "### Results" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.build-frontend.result }}" == "success" ]; then
+            echo "- **Frontend:** Published \`${{ env.DOCKERHUB_FRONTEND }}:${{ needs.detect-changes.outputs.frontend_version }}\`" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.detect-changes.outputs.build_frontend }}" == "true" ]; then
+            echo "- **Frontend:** Build failed or skipped" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Frontend:** No changes detected, skipped" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.build-backend.result }}" == "success" ]; then
+            echo "- **Backend:** Published \`${{ env.DOCKERHUB_BACKEND }}:${{ needs.detect-changes.outputs.backend_version }}\`" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.detect-changes.outputs.build_backend }}" == "true" ]; then
+            echo "- **Backend:** Build failed or skipped" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Backend:** No changes detected, skipped" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Versions" >> $GITHUB_STEP_SUMMARY
+          echo "- **Frontend version:** \`${{ needs.detect-changes.outputs.frontend_version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Backend version:** \`${{ needs.detect-changes.outputs.backend_version }}\`" >> $GITHUB_STEP_SUMMARY
+        env:
+          DOCKERHUB_FRONTEND: thelawsofchaos/makesomenoise-frontend
+          DOCKERHUB_BACKEND: thelawsofchaos/makesomenoise-backend
