@@ -6,3 +6,4 @@ frontend/dist/
 .git
 .gitlab
 *.log
+CLAUDE.md
