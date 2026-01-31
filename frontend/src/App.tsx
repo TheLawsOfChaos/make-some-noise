@@ -7,6 +7,7 @@ import {
   SignalIcon,
   SunIcon,
   MoonIcon,
+  ComputerDesktopIcon,
 } from '@heroicons/react/24/outline';
 import Dashboard from './pages/Dashboard';
 import Generate from './pages/Generate';
@@ -24,7 +25,12 @@ const navigation = [
 ];
 
 function App() {
-  const { theme, toggleTheme } = useTheme();
+  const { mode, resolvedTheme, setMode } = useTheme();
+
+  const cycleMode = () => {
+    const next = mode === 'auto' ? 'light' : mode === 'light' ? 'dark' : 'auto';
+    setMode(next);
+  };
 
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-slate-900 transition-colors">
@@ -35,7 +41,7 @@ function App() {
             Make Some Noise
           </h1>
           <img
-            src={theme === 'dark' ? '/makesomenoise-dark.png' : '/makesomenoise-light.png'}
+            src={resolvedTheme === 'dark' ? '/makesomenoise-dark.png' : '/makesomenoise-light.png'}
             alt="Make Some Noise Logo"
             className="mt-4 w-32 h-32 object-contain"
           />
@@ -59,21 +65,28 @@ function App() {
           ))}
         </nav>
 
-        {/* Dark Mode Toggle */}
+        {/* Theme Mode Toggle */}
         <div className="absolute bottom-0 w-64 p-4 border-t border-slate-700">
           <button
-            onClick={toggleTheme}
+            onClick={cycleMode}
+            data-testid="theme-toggle"
+            data-theme-mode={mode}
             className="flex items-center gap-3 w-full px-4 py-2 text-sm font-medium text-gray-300 hover:bg-slate-800 hover:text-white rounded-md transition-colors"
           >
-            {theme === 'light' ? (
+            {mode === 'auto' ? (
               <>
-                <MoonIcon className="h-5 w-5" />
-                Dark Mode
+                <ComputerDesktopIcon className="h-5 w-5" />
+                Auto
+              </>
+            ) : mode === 'light' ? (
+              <>
+                <SunIcon className="h-5 w-5" />
+                Light
               </>
             ) : (
               <>
-                <SunIcon className="h-5 w-5" />
-                Light Mode
+                <MoonIcon className="h-5 w-5" />
+                Dark
               </>
             )}
           </button>

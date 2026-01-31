@@ -7,3 +7,5 @@ frontend/dist/
 .gitlab
 *.log
 CLAUDE.md
+frontend/test-results/
+frontend/tests/screenshots/
