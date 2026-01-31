@@ -76,23 +76,6 @@ func (s *DestinationStore) Delete(id string) bool {
 // Global destination store (in production, use a database)
 var destinationStore = NewDestinationStore()
 
-func init() {
-	// Create a default file destination
-	defaultDest := &models.Destination{
-		ID:          "default-file",
-		Name:        "Local File Output",
-		Type:        models.DestinationTypeFile,
-		Description: "Default file output destination",
-		Config: models.DestinationConfig{
-			FilePath:   "/tmp/output/siem-events.log",
-			MaxSizeMB:  100,
-			RotateKeep: 5,
-		},
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-	destinationStore.Create(defaultDest)
-}
 
 // ListDestinations returns all destinations
 func ListDestinations(c *gin.Context) {
@@ -133,6 +116,7 @@ func CreateDestination(c *gin.Context) {
 	dest.UpdatedAt = time.Now()
 
 	destinationStore.Create(&dest)
+	SaveDestinations()
 
 	c.JSON(http.StatusCreated, dest)
 }
@@ -163,6 +147,7 @@ func UpdateDestination(c *gin.Context) {
 	dest.EventsSent = existing.EventsSent
 
 	destinationStore.Update(&dest)
+	SaveDestinations()
 
 	c.JSON(http.StatusOK, dest)
 }
@@ -177,6 +162,7 @@ func DeleteDestination(c *gin.Context) {
 		})
 		return
 	}
+	SaveDestinations()
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Destination deleted",

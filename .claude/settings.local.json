@@ -6,7 +6,11 @@
       "Bash(npx tsc:*)",
       "Bash(npm install:*)",
       "Bash(npx playwright install:*)",
-      "Bash(npx playwright test:*)"
+      "Bash(npx playwright test:*)",
+      "Bash(go build:*)",
+      "Bash(docker compose:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)"
     ]
   }
 }
