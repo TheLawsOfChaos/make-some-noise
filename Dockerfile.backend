@@ -25,7 +25,7 @@ WORKDIR /app
 
 # Add ca-certificates for HTTPS and create output directory
 RUN apk --no-cache add ca-certificates && \
-    mkdir -p /tmp/output
+    mkdir -p /tmp/output /config
 
 # Copy binary from builder
 COPY --from=builder /app/siem-event-generator .

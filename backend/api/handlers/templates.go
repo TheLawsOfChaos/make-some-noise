@@ -164,6 +164,7 @@ func CreateTemplate(c *gin.Context) {
 	tmpl.ID = "custom-" + uuid.New().String()
 
 	templateStore.Create(&tmpl)
+	SaveTemplates()
 
 	c.JSON(http.StatusCreated, TemplateWithMetadata{
 		EventTemplate: tmpl,
@@ -206,6 +207,7 @@ func UpdateTemplate(c *gin.Context) {
 
 	tmpl.ID = id
 	templateStore.Update(&tmpl)
+	SaveTemplates()
 
 	c.JSON(http.StatusOK, TemplateWithMetadata{
 		EventTemplate: tmpl,
@@ -236,6 +238,7 @@ func DeleteTemplate(c *gin.Context) {
 		})
 		return
 	}
+	SaveTemplates()
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Template deleted",
