@@ -32,6 +32,9 @@ on:
         required: false
         type: string
 
+permissions:
+  contents: write
+
 env:
   DOCKERHUB_FRONTEND: thelawsofchaos/makesomenoise-frontend
   DOCKERHUB_BACKEND: thelawsofchaos/makesomenoise-backend
@@ -273,7 +276,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Update versions.json
         run: |
@@ -312,7 +315,7 @@ jobs:
       - name: Commit version update
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           if git diff --quiet versions.json; then
             echo "No version changes to commit"
