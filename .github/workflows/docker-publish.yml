@@ -268,9 +268,7 @@ jobs:
   update-versions:
     needs: [detect-changes, build-frontend, build-backend]
     if: |
-      always() &&
-      github.event_name == 'push' &&
-      (needs.build-frontend.result == 'success' || needs.build-backend.result == 'success')
+      always() && github.event_name == 'push' 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -289,13 +287,13 @@ jobs:
           NEW_BACKEND="${{ needs.detect-changes.outputs.backend_version }}"
 
           # Only update if builds succeeded
-          if [ "${{ needs.build-frontend.result }}" == "success" ]; then
+          if [[ "${{ needs.detect-changes.outputs.build_frontend }}" == "true" && "${{ needs.build-frontend.result }}" == "success" ]]; then
             FINAL_FRONTEND="$NEW_FRONTEND"
           else
             FINAL_FRONTEND="$CURRENT_FRONTEND"
           fi
 
-          if [ "${{ needs.build-backend.result }}" == "success" ]; then
+          if [[ "${{ needs.detect-changes.outputs.build_backend }}" == "true" && "${{ needs.build-backend.result }}" == "success" ]]; then
             FINAL_BACKEND="$NEW_BACKEND"
           else
             FINAL_BACKEND="$CURRENT_BACKEND"
