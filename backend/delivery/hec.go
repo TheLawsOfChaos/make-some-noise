@@ -73,9 +73,14 @@ func NewHECSender(config models.DestinationConfig) (*HECSender, error) {
 
 // Send sends an event to HEC
 func (h *HECSender) Send(event *models.GeneratedEvent) error {
+	host := "siem-event-generator"
+	if event.Host != "" {
+		host = event.Host
+	}
+
 	hecEvt := &hecEvent{
 		Time:       float64(event.Timestamp.Unix()) + float64(event.Timestamp.Nanosecond())/1e9,
-		Host:       "siem-event-generator",
+		Host:       host,
 		Source:     h.config.Source,
 		Sourcetype: event.Sourcetype,
 		Index:      h.config.Index,

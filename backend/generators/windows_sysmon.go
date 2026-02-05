@@ -213,7 +213,8 @@ func (g *WindowsSysmonGenerator) generateEvent1(overrides map[string]interface{}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildEvent(1, now, fields)
+	computer := g.RandomFQDN()
+	event := g.buildEvent(1, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -227,6 +228,7 @@ func (g *WindowsSysmonGenerator) generateEvent1(overrides map[string]interface{}
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+		Host:       computer,
 	}, nil
 }
 
@@ -259,7 +261,8 @@ func (g *WindowsSysmonGenerator) generateEvent3(overrides map[string]interface{}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildEvent(3, now, fields)
+	computer := g.RandomFQDN()
+	event := g.buildEvent(3, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -273,6 +276,7 @@ func (g *WindowsSysmonGenerator) generateEvent3(overrides map[string]interface{}
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+		Host:       computer,
 	}, nil
 }
 
@@ -306,7 +310,8 @@ func (g *WindowsSysmonGenerator) generateEvent7(overrides map[string]interface{}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildEvent(7, now, fields)
+	computer := g.RandomFQDN()
+	event := g.buildEvent(7, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -320,6 +325,7 @@ func (g *WindowsSysmonGenerator) generateEvent7(overrides map[string]interface{}
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+		Host:       computer,
 	}, nil
 }
 
@@ -346,7 +352,8 @@ func (g *WindowsSysmonGenerator) generateEvent8(overrides map[string]interface{}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildEvent(8, now, fields)
+	computer := g.RandomFQDN()
+	event := g.buildEvent(8, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -360,6 +367,7 @@ func (g *WindowsSysmonGenerator) generateEvent8(overrides map[string]interface{}
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+		Host:       computer,
 	}, nil
 }
 
@@ -386,7 +394,8 @@ func (g *WindowsSysmonGenerator) generateEvent10(overrides map[string]interface{
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildEvent(10, now, fields)
+	computer := g.RandomFQDN()
+	event := g.buildEvent(10, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -400,6 +409,7 @@ func (g *WindowsSysmonGenerator) generateEvent10(overrides map[string]interface{
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+		Host:       computer,
 	}, nil
 }
 
@@ -421,7 +431,8 @@ func (g *WindowsSysmonGenerator) generateEvent11(overrides map[string]interface{
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildEvent(11, now, fields)
+	computer := g.RandomFQDN()
+	event := g.buildEvent(11, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -435,6 +446,7 @@ func (g *WindowsSysmonGenerator) generateEvent11(overrides map[string]interface{
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+		Host:       computer,
 	}, nil
 }
 
@@ -465,7 +477,8 @@ func (g *WindowsSysmonGenerator) generateEvent22(overrides map[string]interface{
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildEvent(22, now, fields)
+	computer := g.RandomFQDN()
+	event := g.buildEvent(22, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -479,11 +492,12 @@ func (g *WindowsSysmonGenerator) generateEvent22(overrides map[string]interface{
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Microsoft-Windows-Sysmon/Operational",
+		Host:       computer,
 	}, nil
 }
 
 // buildEvent creates the common Sysmon Event structure
-func (g *WindowsSysmonGenerator) buildEvent(eventID int, timestamp time.Time, fields map[string]interface{}) SysmonEvent {
+func (g *WindowsSysmonGenerator) buildEvent(eventID int, computer string, timestamp time.Time, fields map[string]interface{}) SysmonEvent {
 	dataItems := make([]SysmonDataItem, 0)
 	for name, value := range fields {
 		dataItems = append(dataItems, SysmonDataItem{
@@ -509,7 +523,7 @@ func (g *WindowsSysmonGenerator) buildEvent(eventID int, timestamp time.Time, fi
 			EventRecordID: int64(g.RandomInt(100000, 99999999)),
 			Execution:     SysmonExecution{ProcessID: g.RandomInt(1000, 5000), ThreadID: g.RandomInt(100, 10000)},
 			Channel:       "Microsoft-Windows-Sysmon/Operational",
-			Computer:      g.RandomFQDN(),
+			Computer:      computer,
 		},
 		EventData: SysmonEventData{Data: dataItems},
 	}

@@ -26,7 +26,7 @@ func (g *WindowsSecurityGenerator) GetEventType() models.EventType {
 		Name:        "Windows Security",
 		Category:    "windows",
 		Description: "Windows Security Event Log events including logon, process, and privilege events",
-		EventIDs:    []string{"4624", "4625", "4688", "4672", "4720", "4726", "4728", "4732"},
+		EventIDs:    []string{"4624", "4625", "4688", "4672", "4720"},
 	}
 }
 
@@ -191,7 +191,8 @@ func (g *WindowsSecurityGenerator) generate4624(overrides map[string]interface{}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildEvent(4624, now, fields)
+	computer := g.RandomFQDN()
+	event := g.buildEvent(4624, 12544, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -204,7 +205,8 @@ func (g *WindowsSecurityGenerator) generate4624(overrides map[string]interface{}
 		Timestamp:  now,
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
-		Sourcetype: "WinEventLog:Security",
+		Sourcetype: "XmlWinEventLog:Security",
+		Host:       computer,
 	}, nil
 }
 
@@ -240,7 +242,8 @@ func (g *WindowsSecurityGenerator) generate4625(overrides map[string]interface{}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildEvent(4625, now, fields)
+	computer := g.RandomFQDN()
+	event := g.buildEvent(4625, 12544, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -253,7 +256,8 @@ func (g *WindowsSecurityGenerator) generate4625(overrides map[string]interface{}
 		Timestamp:  now,
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
-		Sourcetype: "WinEventLog:Security",
+		Sourcetype: "XmlWinEventLog:Security",
+		Host:       computer,
 	}, nil
 }
 
@@ -281,7 +285,8 @@ func (g *WindowsSecurityGenerator) generate4688(overrides map[string]interface{}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildEvent(4688, now, fields)
+	computer := g.RandomFQDN()
+	event := g.buildEvent(4688, 13312, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -294,7 +299,8 @@ func (g *WindowsSecurityGenerator) generate4688(overrides map[string]interface{}
 		Timestamp:  now,
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
-		Sourcetype: "WinEventLog:Security",
+		Sourcetype: "XmlWinEventLog:Security",
+		Host:       computer,
 	}, nil
 }
 
@@ -334,7 +340,8 @@ func (g *WindowsSecurityGenerator) generate4672(overrides map[string]interface{}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildEvent(4672, now, fields)
+	computer := g.RandomFQDN()
+	event := g.buildEvent(4672, 12548, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -347,7 +354,8 @@ func (g *WindowsSecurityGenerator) generate4672(overrides map[string]interface{}
 		Timestamp:  now,
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
-		Sourcetype: "WinEventLog:Security",
+		Sourcetype: "XmlWinEventLog:Security",
+		Host:       computer,
 	}, nil
 }
 
@@ -387,7 +395,8 @@ func (g *WindowsSecurityGenerator) generate4720(overrides map[string]interface{}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildEvent(4720, now, fields)
+	computer := g.RandomFQDN()
+	event := g.buildEvent(4720, 13824, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -400,12 +409,13 @@ func (g *WindowsSecurityGenerator) generate4720(overrides map[string]interface{}
 		Timestamp:  now,
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
-		Sourcetype: "WinEventLog:Security",
+		Sourcetype: "XmlWinEventLog:Security",
+		Host:       computer,
 	}, nil
 }
 
 // buildEvent creates the common Windows Event structure
-func (g *WindowsSecurityGenerator) buildEvent(eventID int, timestamp time.Time, fields map[string]interface{}) WindowsEvent {
+func (g *WindowsSecurityGenerator) buildEvent(eventID int, task int, computer string, timestamp time.Time, fields map[string]interface{}) WindowsEvent {
 	dataItems := make([]WindowsDataItem, 0)
 	for name, value := range fields {
 		dataItems = append(dataItems, WindowsDataItem{
@@ -424,14 +434,14 @@ func (g *WindowsSecurityGenerator) buildEvent(eventID int, timestamp time.Time, 
 			EventID:       eventID,
 			Version:       2,
 			Level:         0,
-			Task:          12544,
+			Task:          task,
 			Opcode:        0,
 			Keywords:      "0x8020000000000000",
 			TimeCreated:   WindowsTimeCreated{SystemTime: timestamp.Format("2006-01-02T15:04:05.000000000Z")},
 			EventRecordID: int64(g.RandomInt(100000, 99999999)),
 			Execution:     WindowsExecution{ProcessID: g.RandomInt(4, 1000), ThreadID: g.RandomInt(100, 10000)},
 			Channel:       "Security",
-			Computer:      g.RandomFQDN(),
+			Computer:      computer,
 		},
 		EventData: WindowsEventData{Data: dataItems},
 	}

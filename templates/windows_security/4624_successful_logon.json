@@ -5,7 +5,7 @@
   "event_id": "4624",
   "format": "xml",
   "description": "An account was successfully logged on",
-  "sourcetype": "WinEventLog:Security",
+  "sourcetype": "XmlWinEventLog:Security",
   "fields": [
     {
       "name": "SubjectUserSid",

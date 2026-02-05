@@ -48,6 +48,7 @@ type GeneratedEvent struct {
 	RawEvent   string                 `json:"raw_event"`
 	Fields     map[string]interface{} `json:"fields"`
 	Sourcetype string                 `json:"sourcetype"`
+	Host       string                 `json:"host,omitempty"`
 }
 
 // GenerateRequest represents a request to generate events

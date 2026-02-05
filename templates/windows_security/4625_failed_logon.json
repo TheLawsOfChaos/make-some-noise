@@ -5,7 +5,7 @@
   "event_id": "4625",
   "format": "xml",
   "description": "An account failed to log on",
-  "sourcetype": "WinEventLog:Security",
+  "sourcetype": "XmlWinEventLog:Security",
   "fields": [
     {
       "name": "TargetUserName",
