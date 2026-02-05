@@ -5,7 +5,7 @@
   "event_id": "4720",
   "format": "xml",
   "description": "A user account was created",
-  "sourcetype": "WinEventLog:Security",
+  "sourcetype": "XmlWinEventLog:Security",
   "fields": [
     {
       "name": "TargetUserName",

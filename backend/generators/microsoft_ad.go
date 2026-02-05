@@ -331,7 +331,7 @@ func (g *MicrosoftADGenerator) generate4720(overrides map[string]interface{}) (*
 		Timestamp:  now,
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
-		Sourcetype: "WinEventLog:Security",
+		Sourcetype: "XmlWinEventLog:Security",
 	}, nil
 }
 
@@ -365,7 +365,7 @@ func (g *MicrosoftADGenerator) generate4722(overrides map[string]interface{}) (*
 		Timestamp:  now,
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
-		Sourcetype: "WinEventLog:Security",
+		Sourcetype: "XmlWinEventLog:Security",
 	}, nil
 }
 
@@ -401,7 +401,7 @@ func (g *MicrosoftADGenerator) generate4723(overrides map[string]interface{}) (*
 		Timestamp:  now,
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
-		Sourcetype: "WinEventLog:Security",
+		Sourcetype: "XmlWinEventLog:Security",
 	}, nil
 }
 
@@ -435,7 +435,7 @@ func (g *MicrosoftADGenerator) generate4724(overrides map[string]interface{}) (*
 		Timestamp:  now,
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
-		Sourcetype: "WinEventLog:Security",
+		Sourcetype: "XmlWinEventLog:Security",
 	}, nil
 }
 
@@ -469,7 +469,7 @@ func (g *MicrosoftADGenerator) generate4725(overrides map[string]interface{}) (*
 		Timestamp:  now,
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
-		Sourcetype: "WinEventLog:Security",
+		Sourcetype: "XmlWinEventLog:Security",
 	}, nil
 }
 
@@ -504,7 +504,7 @@ func (g *MicrosoftADGenerator) generate4726(overrides map[string]interface{}) (*
 		Timestamp:  now,
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
-		Sourcetype: "WinEventLog:Security",
+		Sourcetype: "XmlWinEventLog:Security",
 	}, nil
 }
 
@@ -541,7 +541,7 @@ func (g *MicrosoftADGenerator) generate4728(overrides map[string]interface{}) (*
 		Timestamp:  now,
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
-		Sourcetype: "WinEventLog:Security",
+		Sourcetype: "XmlWinEventLog:Security",
 	}, nil
 }
 
@@ -578,7 +578,7 @@ func (g *MicrosoftADGenerator) generate4729(overrides map[string]interface{}) (*
 		Timestamp:  now,
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
-		Sourcetype: "WinEventLog:Security",
+		Sourcetype: "XmlWinEventLog:Security",
 	}, nil
 }
 
@@ -616,7 +616,7 @@ func (g *MicrosoftADGenerator) generate4732(overrides map[string]interface{}) (*
 		Timestamp:  now,
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
-		Sourcetype: "WinEventLog:Security",
+		Sourcetype: "XmlWinEventLog:Security",
 	}, nil
 }
 
@@ -649,7 +649,7 @@ func (g *MicrosoftADGenerator) generate4740(overrides map[string]interface{}) (*
 		Timestamp:  now,
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
-		Sourcetype: "WinEventLog:Security",
+		Sourcetype: "XmlWinEventLog:Security",
 	}, nil
 }
 
@@ -683,6 +683,6 @@ func (g *MicrosoftADGenerator) generate4767(overrides map[string]interface{}) (*
 		Timestamp:  now,
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
-		Sourcetype: "WinEventLog:Security",
+		Sourcetype: "XmlWinEventLog:Security",
 	}, nil
 }
