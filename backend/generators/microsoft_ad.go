@@ -249,7 +249,7 @@ func (g *MicrosoftADGenerator) RandomGroupName() string {
 }
 
 // buildADEvent creates the common AD Event structure
-func (g *MicrosoftADGenerator) buildADEvent(eventID int, task int, timestamp time.Time, fields map[string]interface{}) ADEvent {
+func (g *MicrosoftADGenerator) buildADEvent(eventID int, task int, computer string, timestamp time.Time, fields map[string]interface{}) ADEvent {
 	dataItems := make([]ADDataItem, 0)
 	for name, value := range fields {
 		dataItems = append(dataItems, ADDataItem{
@@ -275,7 +275,7 @@ func (g *MicrosoftADGenerator) buildADEvent(eventID int, task int, timestamp tim
 			EventRecordID: int64(g.RandomInt(100000, 99999999)),
 			Execution:     ADExecution{ProcessID: g.RandomInt(500, 1000), ThreadID: g.RandomInt(100, 10000)},
 			Channel:       "Security",
-			Computer:      g.RandomDCName(),
+			Computer:      computer,
 		},
 		EventData: ADEventData{Data: dataItems},
 	}
@@ -318,7 +318,8 @@ func (g *MicrosoftADGenerator) generate4720(overrides map[string]interface{}) (*
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildADEvent(4720, 13824, now, fields)
+	computer := g.RandomDCName()
+	event := g.buildADEvent(4720, 13824, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -332,6 +333,7 @@ func (g *MicrosoftADGenerator) generate4720(overrides map[string]interface{}) (*
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Security",
+		Host:       computer,
 	}, nil
 }
 
@@ -352,7 +354,8 @@ func (g *MicrosoftADGenerator) generate4722(overrides map[string]interface{}) (*
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildADEvent(4722, 13824, now, fields)
+	computer := g.RandomDCName()
+	event := g.buildADEvent(4722, 13824, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -366,6 +369,7 @@ func (g *MicrosoftADGenerator) generate4722(overrides map[string]interface{}) (*
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Security",
+		Host:       computer,
 	}, nil
 }
 
@@ -388,7 +392,8 @@ func (g *MicrosoftADGenerator) generate4723(overrides map[string]interface{}) (*
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildADEvent(4723, 13824, now, fields)
+	computer := g.RandomDCName()
+	event := g.buildADEvent(4723, 13824, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -402,6 +407,7 @@ func (g *MicrosoftADGenerator) generate4723(overrides map[string]interface{}) (*
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Security",
+		Host:       computer,
 	}, nil
 }
 
@@ -422,7 +428,8 @@ func (g *MicrosoftADGenerator) generate4724(overrides map[string]interface{}) (*
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildADEvent(4724, 13824, now, fields)
+	computer := g.RandomDCName()
+	event := g.buildADEvent(4724, 13824, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -436,6 +443,7 @@ func (g *MicrosoftADGenerator) generate4724(overrides map[string]interface{}) (*
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Security",
+		Host:       computer,
 	}, nil
 }
 
@@ -456,7 +464,8 @@ func (g *MicrosoftADGenerator) generate4725(overrides map[string]interface{}) (*
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildADEvent(4725, 13824, now, fields)
+	computer := g.RandomDCName()
+	event := g.buildADEvent(4725, 13824, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -470,6 +479,7 @@ func (g *MicrosoftADGenerator) generate4725(overrides map[string]interface{}) (*
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Security",
+		Host:       computer,
 	}, nil
 }
 
@@ -491,7 +501,8 @@ func (g *MicrosoftADGenerator) generate4726(overrides map[string]interface{}) (*
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildADEvent(4726, 13824, now, fields)
+	computer := g.RandomDCName()
+	event := g.buildADEvent(4726, 13824, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -505,6 +516,7 @@ func (g *MicrosoftADGenerator) generate4726(overrides map[string]interface{}) (*
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Security",
+		Host:       computer,
 	}, nil
 }
 
@@ -528,7 +540,8 @@ func (g *MicrosoftADGenerator) generate4728(overrides map[string]interface{}) (*
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildADEvent(4728, 13826, now, fields)
+	computer := g.RandomDCName()
+	event := g.buildADEvent(4728, 13826, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -542,6 +555,7 @@ func (g *MicrosoftADGenerator) generate4728(overrides map[string]interface{}) (*
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Security",
+		Host:       computer,
 	}, nil
 }
 
@@ -565,7 +579,8 @@ func (g *MicrosoftADGenerator) generate4729(overrides map[string]interface{}) (*
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildADEvent(4729, 13826, now, fields)
+	computer := g.RandomDCName()
+	event := g.buildADEvent(4729, 13826, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -579,6 +594,7 @@ func (g *MicrosoftADGenerator) generate4729(overrides map[string]interface{}) (*
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Security",
+		Host:       computer,
 	}, nil
 }
 
@@ -603,7 +619,8 @@ func (g *MicrosoftADGenerator) generate4732(overrides map[string]interface{}) (*
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildADEvent(4732, 13826, now, fields)
+	computer := g.RandomDCName()
+	event := g.buildADEvent(4732, 13826, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -617,6 +634,7 @@ func (g *MicrosoftADGenerator) generate4732(overrides map[string]interface{}) (*
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Security",
+		Host:       computer,
 	}, nil
 }
 
@@ -636,7 +654,8 @@ func (g *MicrosoftADGenerator) generate4740(overrides map[string]interface{}) (*
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildADEvent(4740, 13824, now, fields)
+	computer := g.RandomDCName()
+	event := g.buildADEvent(4740, 13824, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -650,6 +669,7 @@ func (g *MicrosoftADGenerator) generate4740(overrides map[string]interface{}) (*
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Security",
+		Host:       computer,
 	}, nil
 }
 
@@ -670,7 +690,8 @@ func (g *MicrosoftADGenerator) generate4767(overrides map[string]interface{}) (*
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	event := g.buildADEvent(4767, 13824, now, fields)
+	computer := g.RandomDCName()
+	event := g.buildADEvent(4767, 13824, computer, now, fields)
 	rawEvent, err := xml.MarshalIndent(event, "", "  ")
 	if err != nil {
 		return nil, err
@@ -684,5 +705,6 @@ func (g *MicrosoftADGenerator) generate4767(overrides map[string]interface{}) (*
 		RawEvent:   string(rawEvent),
 		Fields:     fields,
 		Sourcetype: "XmlWinEventLog:Security",
+		Host:       computer,
 	}, nil
 }

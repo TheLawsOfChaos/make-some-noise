@@ -10,7 +10,8 @@
       "Bash(go build:*)",
       "Bash(docker compose:*)",
       "Bash(curl:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(docker-compose build:*)"
     ]
   }
 }
