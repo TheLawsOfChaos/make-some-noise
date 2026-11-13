@@ -33,7 +33,7 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
 env:
   DOCKERHUB_FRONTEND: thelawsofchaos/makesomenoise-frontend
@@ -49,17 +49,20 @@ jobs:
       backend_version: ${{ steps.versions.outputs.backend_version }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Detect changed files
         id: changes
+        env:
+          INPUT_BUILD_FRONTEND: ${{ github.event.inputs.build_frontend }}
+          INPUT_BUILD_BACKEND: ${{ github.event.inputs.build_backend }}
         run: |
           # For workflow_dispatch, use the inputs
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "build_frontend=${{ github.event.inputs.build_frontend }}" >> $GITHUB_OUTPUT
-            echo "build_backend=${{ github.event.inputs.build_backend }}" >> $GITHUB_OUTPUT
+            echo "build_frontend=$INPUT_BUILD_FRONTEND" >> $GITHUB_OUTPUT
+            echo "build_backend=$INPUT_BUILD_BACKEND" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -129,6 +132,9 @@ jobs:
 
       - name: Determine versions
         id: versions
+        env:
+          INPUT_FRONTEND_VERSION: ${{ github.event.inputs.frontend_version }}
+          INPUT_BACKEND_VERSION: ${{ github.event.inputs.backend_version }}
         run: |
           # Read current versions from versions.json
           CURRENT_FRONTEND=$(jq -r '.frontend' versions.json)
@@ -158,8 +164,8 @@ jobs:
           COMMIT_BACKEND_VERSION=$(echo "$COMMIT_MSG" | grep -oE 'backend[:-]v?([0-9]+\.[0-9]+\.[0-9]+)' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
 
           # Determine frontend version
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.frontend_version }}" ]; then
-            FRONTEND_VERSION="${{ github.event.inputs.frontend_version }}"
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "$INPUT_FRONTEND_VERSION" ]; then
+            FRONTEND_VERSION="$INPUT_FRONTEND_VERSION"
             echo "Frontend version from manual input: $FRONTEND_VERSION"
           elif [ -n "$COMMIT_FRONTEND_VERSION" ]; then
             FRONTEND_VERSION="$COMMIT_FRONTEND_VERSION"
@@ -173,8 +179,8 @@ jobs:
           fi
 
           # Determine backend version
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.backend_version }}" ]; then
-            BACKEND_VERSION="${{ github.event.inputs.backend_version }}"
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "$INPUT_BACKEND_VERSION" ]; then
+            BACKEND_VERSION="$INPUT_BACKEND_VERSION"
             echo "Backend version from manual input: $BACKEND_VERSION"
           elif [ -n "$COMMIT_BACKEND_VERSION" ]; then
             BACKEND_VERSION="$COMMIT_BACKEND_VERSION"
@@ -203,19 +209,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push frontend image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: ./Dockerfile.frontend
@@ -223,8 +229,8 @@ jobs:
           tags: |
             ${{ env.DOCKERHUB_FRONTEND }}:${{ needs.detect-changes.outputs.frontend_version }}
             ${{ env.DOCKERHUB_FRONTEND }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=main-frontend
+          cache-to: type=gha,mode=max,scope=main-frontend
           platforms: linux/amd64,linux/arm64
 
       - name: Output frontend build info
@@ -237,19 +243,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push backend image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: ./Dockerfile.backend
@@ -257,8 +263,8 @@ jobs:
           tags: |
             ${{ env.DOCKERHUB_BACKEND }}:${{ needs.detect-changes.outputs.backend_version }}
             ${{ env.DOCKERHUB_BACKEND }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=main-backend
+          cache-to: type=gha,mode=max,scope=main-backend
           platforms: linux/amd64,linux/arm64
 
       - name: Output backend build info
@@ -269,9 +275,12 @@ jobs:
     needs: [detect-changes, build-frontend, build-backend]
     if: always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
+    # The only job that writes to the repository
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 

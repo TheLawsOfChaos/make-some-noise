@@ -1,75 +1,99 @@
-name: Test Docker Build (PR)
+name: Test (PR)
 
 on:
   pull_request:
     branches:
       - main
 
-jobs:
-  build-test:
-    runs-on: ubuntu-latest
+permissions:
+  contents: read
 
+jobs:
+  backend:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Preview version from PR title
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+
+      - name: gofmt
+        working-directory: backend
+        run: test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
+
+      - name: go vet
+        working-directory: backend
+        run: go vet ./...
+
+      - name: go test
+        working-directory: backend
+        run: go test -race -count=1 ./...
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build (type check included)
+        working-directory: frontend
+        run: npm run build
+
+  images:
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Preview version
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          PR_TITLE="${{ github.event.pull_request.title }}"
-          echo "PR Title: $PR_TITLE"
-
-          # Extract version from PR title
-          VERSION=$(echo "$PR_TITLE" | grep -oE '(v?[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?)' | head -1 | sed 's/^v//')
-
-          if [ -n "$VERSION" ]; then
-            echo "Version will be: $VERSION"
-          else
-            if [ -f "VERSION" ]; then
-              VERSION=$(cat VERSION | tr -d '[:space:]')
-              echo "Version will be (from VERSION file): $VERSION"
-            else
-              VERSION="0.0.0-$(git rev-parse --short HEAD)"
-              echo "Version will be (fallback): $VERSION"
-            fi
-          fi
-
-          echo "## Version Preview" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "When this PR is merged, the following version will be published:" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Version:** \`$VERSION\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Tip:" >> $GITHUB_STEP_SUMMARY
-          echo "To set a specific version, include it in your PR title:" >> $GITHUB_STEP_SUMMARY
-          echo "- \`Release v1.2.3 - Feature description\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`v1.2.3: Bug fixes\`" >> $GITHUB_STEP_SUMMARY
-          echo "- \`1.2.3 Update dependencies\`" >> $GITHUB_STEP_SUMMARY
+          echo "## Version Preview" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Versions come from versions.json and bump on merge; a \`frontend:x.y.z\` or \`backend:x.y.z\` token in the merge commit message overrides them." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- frontend: \`$(jq -r .frontend versions.json)\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- backend: \`$(jq -r .backend versions.json)\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- PR title: $PR_TITLE" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
+      # PR builds use their own cache scope so a pull request cannot seed the
+      # cache that the publish workflow reads.
       - name: Build backend image (test only)
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: ./Dockerfile.backend
           push: false
           tags: makesomenoise-backend:test
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=pr-backend
+          cache-to: type=gha,mode=max,scope=pr-backend
 
       - name: Build frontend image (test only)
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           file: ./Dockerfile.frontend
           push: false
           tags: makesomenoise-frontend:test
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build success summary
-        run: |
-          echo "## Build Status" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Both Docker images built successfully." >> $GITHUB_STEP_SUMMARY
+          cache-from: type=gha,scope=pr-frontend
+          cache-to: type=gha,mode=max,scope=pr-frontend
