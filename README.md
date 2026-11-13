@@ -399,4 +399,4 @@ Files written to `/tmp/output/` inside the container will appear in the `./outpu
 
 ## License
 
-MIT License
+Apache License 2.0. See [LICENSE](LICENSE).

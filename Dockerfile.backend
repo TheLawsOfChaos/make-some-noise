@@ -12,11 +12,13 @@ COPY backend/go.mod backend/go.sum ./
 # Download dependencies
 RUN go mod download
 
-# Copy source code
+# Copy source code and the version file
 COPY backend/ .
+COPY versions.json /versions.json
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o siem-event-generator .
+RUN VERSION=$(sed -n 's/.*"backend": *"\([^"]*\)".*/\1/p' /versions.json) && \
+    CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags "-s -w -X siem-event-generator/api/handlers.Version=${VERSION}" -o siem-event-generator .
 
 # Runtime stage
 FROM alpine:3.19
