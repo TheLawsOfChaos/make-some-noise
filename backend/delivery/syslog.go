@@ -3,65 +3,90 @@ package delivery
 import (
 	"fmt"
 	"net"
+	"strings"
+	"sync"
 	"time"
 
 	"siem-event-generator/models"
 )
 
-// SyslogSender sends events via syslog
+const syslogAppName = "siem-event-generator"
+
+// SyslogSender sends events via syslog (RFC 3164 or RFC 5424 over UDP or TCP).
+// A failed write closes the connection and the next send dials again.
 type SyslogSender struct {
+	mu       sync.Mutex
 	conn     net.Conn
+	address  string
 	config   models.DestinationConfig
 	protocol string
 }
 
 // NewSyslogSender creates a new syslog sender
 func NewSyslogSender(config models.DestinationConfig, protocol string) (*SyslogSender, error) {
-	address := net.JoinHostPort(config.Host, fmt.Sprintf("%d", config.Port))
-
-	var conn net.Conn
-	var err error
-
-	if protocol == "tcp" {
-		conn, err = net.DialTimeout("tcp", address, 10*time.Second)
-	} else {
-		conn, err = net.DialTimeout("udp", address, 10*time.Second)
+	if config.Host == "" || config.Port <= 0 {
+		return nil, fmt.Errorf("syslog host and port are required")
 	}
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect to syslog server: %w", SafeError(err))
-	}
-
-	return &SyslogSender{
-		conn:     conn,
+	s := &SyslogSender{
+		address:  net.JoinHostPort(config.Host, fmt.Sprintf("%d", config.Port)),
 		config:   config,
 		protocol: protocol,
-	}, nil
+	}
+	if err := s.dial(); err != nil {
+		return nil, fmt.Errorf("failed to connect to syslog server: %w", SafeError(err))
+	}
+	return s, nil
+}
+
+// dial opens the connection. The caller holds s.mu or is the constructor.
+func (s *SyslogSender) dial() error {
+	conn, err := net.DialTimeout(s.protocol, s.address, 10*time.Second)
+	if err != nil {
+		return err
+	}
+	s.conn = conn
+	return nil
 }
 
 // Send sends an event via syslog
 func (s *SyslogSender) Send(event *models.GeneratedEvent) error {
-	message := s.formatMessage(event)
+	return s.write(s.formatMessage(event))
+}
 
+func (s *SyslogSender) write(message string) error {
 	if s.protocol == "tcp" {
-		// TCP syslog requires newline delimiter
+		// TCP syslog requires newline delimiter; events are single-line
 		message += "\n"
 	}
 
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.conn == nil {
+		if err := s.dial(); err != nil {
+			return fmt.Errorf("reconnect failed: %w", SafeError(err))
+		}
+	}
+	s.conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
 	_, err := s.conn.Write([]byte(message))
-	return err
+	if err != nil {
+		s.conn.Close()
+		s.conn = nil
+		return SafeError(err)
+	}
+	return nil
 }
 
 // formatMessage formats the event as a syslog message
 func (s *SyslogSender) formatMessage(event *models.GeneratedEvent) string {
-	facility := s.config.Facility
-	if facility == 0 {
-		facility = 1 // user-level
+	facility := 1 // user-level
+	if s.config.Facility != nil {
+		facility = *s.config.Facility
 	}
 
-	severity := s.config.Severity
-	if severity == 0 {
-		severity = 6 // informational
+	severity := 6 // informational
+	if s.config.Severity != nil {
+		severity = *s.config.Severity
 	}
 
 	priority := facility*8 + severity
@@ -71,48 +96,48 @@ func (s *SyslogSender) formatMessage(event *models.GeneratedEvent) string {
 		format = "rfc3164"
 	}
 
-	hostname := "siem-event-generator"
+	hostname := syslogAppName
+	if event.Host != "" {
+		hostname = event.Host
+	}
 	timestamp := event.Timestamp
+	// A multi-line payload would be split into several messages by the receiver
+	raw := strings.ReplaceAll(event.RawEvent, "\n", " ")
 
 	if format == "rfc5424" {
 		// RFC 5424 format
-		return fmt.Sprintf("<%d>1 %s %s siem-event-generator - - - %s",
+		return fmt.Sprintf("<%d>1 %s %s %s - - - %s",
 			priority,
 			timestamp.Format("2006-01-02T15:04:05.000000Z07:00"),
 			hostname,
-			event.RawEvent,
+			syslogAppName,
+			raw,
 		)
 	}
 
 	// RFC 3164 (BSD) format
-	return fmt.Sprintf("<%d>%s %s siem-event-generator: %s",
+	return fmt.Sprintf("<%d>%s %s %s: %s",
 		priority,
 		timestamp.Format("Jan  2 15:04:05"),
 		hostname,
-		event.RawEvent,
+		syslogAppName,
+		raw,
 	)
 }
 
 // Test tests the syslog connection
 func (s *SyslogSender) Test() error {
-	testMessage := "<14>Jan  1 00:00:00 test siem-event-generator: connection test"
-
-	if s.protocol == "tcp" {
-		testMessage += "\n"
-	}
-
-	// Set a deadline for the test
-	s.conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
-	defer s.conn.SetWriteDeadline(time.Time{})
-
-	_, err := s.conn.Write([]byte(testMessage))
-	return err
+	return s.write("<14>Jan  1 00:00:00 test " + syslogAppName + ": connection test")
 }
 
 // Close closes the syslog connection
 func (s *SyslogSender) Close() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if s.conn != nil {
-		return s.conn.Close()
+		err := s.conn.Close()
+		s.conn = nil
+		return err
 	}
 	return nil
 }

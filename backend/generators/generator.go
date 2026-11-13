@@ -57,6 +57,18 @@ func (b *BaseGenerator) RandomString(length int) string {
 	return string(result)
 }
 
+// RandomHex generates a random lowercase hex string of the given length,
+// for hashes and other hex identifiers.
+func (b *BaseGenerator) RandomHex(length int) string {
+	const charset = "0123456789abcdef"
+	result := make([]byte, length)
+	for i := range result {
+		n, _ := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
+		result[i] = charset[n.Int64()]
+	}
+	return string(result)
+}
+
 // RandomInt generates a random integer between min and max (inclusive)
 func (b *BaseGenerator) RandomInt(min, max int) int {
 	n, _ := rand.Int(rand.Reader, big.NewInt(int64(max-min+1)))
@@ -218,19 +230,19 @@ func (b *BaseGenerator) RandomSID() string {
 // CommonPorts returns commonly used ports for various services
 func (b *BaseGenerator) CommonPorts() map[string]int {
 	return map[string]int{
-		"http":   80,
-		"https":  443,
-		"ssh":    22,
-		"rdp":    3389,
-		"dns":    53,
-		"smtp":   25,
-		"smtps":  465,
-		"ftp":    21,
-		"mysql":  3306,
-		"mssql":  1433,
-		"ldap":   389,
-		"ldaps":  636,
-		"smb":    445,
+		"http":     80,
+		"https":    443,
+		"ssh":      22,
+		"rdp":      3389,
+		"dns":      53,
+		"smtp":     25,
+		"smtps":    465,
+		"ftp":      21,
+		"mysql":    3306,
+		"mssql":    1433,
+		"ldap":     389,
+		"ldaps":    636,
+		"smb":      445,
 		"kerberos": 88,
 	}
 }

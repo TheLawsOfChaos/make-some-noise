@@ -105,15 +105,15 @@ func (g *CrowdStrikeGenerator) Generate(templateID string, overrides map[string]
 }
 
 func (g *CrowdStrikeGenerator) randomAID() string {
-	return g.RandomString(32)
+	return g.RandomHex(32)
 }
 
 func (g *CrowdStrikeGenerator) randomCID() string {
-	return g.RandomString(32)
+	return g.RandomHex(32)
 }
 
 func (g *CrowdStrikeGenerator) randomSHA256() string {
-	return g.RandomString(64)
+	return g.RandomHex(64)
 }
 
 func (g *CrowdStrikeGenerator) randomComputerName() string {
@@ -164,11 +164,11 @@ func (g *CrowdStrikeGenerator) buildBaseEvent(eventType string) map[string]inter
 	timestamp := time.Now().UTC()
 	return map[string]interface{}{
 		"metadata": map[string]interface{}{
-			"customerIDString": g.randomCID(),
-			"offset":           g.RandomInt(100000, 999999),
-			"eventType":        eventType,
+			"customerIDString":  g.randomCID(),
+			"offset":            g.RandomInt(100000, 999999),
+			"eventType":         eventType,
 			"eventCreationTime": timestamp.UnixMilli(),
-			"version":          "1.0",
+			"version":           "1.0",
 		},
 		"event": map[string]interface{}{
 			"aid":          g.randomAID(),
@@ -216,7 +216,7 @@ func (g *CrowdStrikeGenerator) generateDetection(overrides map[string]interface{
 	base["event"].(map[string]interface{})["ParentImageFileName"] = g.RandomChoice([]string{"explorer.exe", "cmd.exe", "powershell.exe", "svchost.exe"})
 
 	fields := g.ApplyOverrides(base, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -244,7 +244,7 @@ func (g *CrowdStrikeGenerator) generateProcess(overrides map[string]interface{})
 	base["event"].(map[string]interface{})["ParentProcessId"] = g.RandomInt(1000, 65535)
 
 	fields := g.ApplyOverrides(base, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -270,7 +270,7 @@ func (g *CrowdStrikeGenerator) generateNetwork(overrides map[string]interface{})
 	base["event"].(map[string]interface{})["ImageFileName"] = g.RandomProcessName()
 
 	fields := g.ApplyOverrides(base, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -297,7 +297,7 @@ func (g *CrowdStrikeGenerator) generateDNS(overrides map[string]interface{}) (*m
 	base["event"].(map[string]interface{})["ImageFileName"] = g.RandomChoice([]string{"chrome.exe", "firefox.exe", "outlook.exe", "svchost.exe"})
 
 	fields := g.ApplyOverrides(base, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -325,7 +325,7 @@ func (g *CrowdStrikeGenerator) generateFileWrite(overrides map[string]interface{
 	base["event"].(map[string]interface{})["UserName"] = g.RandomUsername()
 
 	fields := g.ApplyOverrides(base, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -362,7 +362,7 @@ func (g *CrowdStrikeGenerator) generateAuthActivity(overrides map[string]interfa
 	base["event"].(map[string]interface{})["RemoteAddressIP4"] = g.RandomIPv4Internal()
 
 	fields := g.ApplyOverrides(base, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),

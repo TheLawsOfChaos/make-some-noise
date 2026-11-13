@@ -6,17 +6,41 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"siem-event-generator/models"
 )
 
-// HECSender sends events to Splunk HTTP Event Collector
+const (
+	defaultBatchSize = 100
+	flushInterval    = time.Second
+	maxBackoff       = 30 * time.Second
+)
+
+// HECSender sends events to Splunk HTTP Event Collector in batches.
+//
+// Events are buffered and flushed when the batch is full, once a second, or
+// on Close. A failed flush keeps the batch for the next attempt with an
+// exponential backoff; the buffer is capped at ten batches and the oldest
+// events are dropped past that, counted in Dropped().
 type HECSender struct {
-	client *http.Client
-	config models.DestinationConfig
-	buffer []*hecEvent
+	client    *http.Client
+	config    models.DestinationConfig
+	batchSize int
+
+	mu        sync.Mutex
+	buffer    []*hecEvent
+	backoff   time.Duration
+	nextTry   time.Time
+	dropped   int64
+	failed    int64
+	stop      chan struct{}
+	done      chan struct{}
+	closeOnce sync.Once
 }
 
 // hecEvent represents a Splunk HEC event payload
@@ -66,18 +90,25 @@ func NewHECSender(config models.DestinationConfig) (*HECSender, error) {
 	}
 
 	batchSize := config.BatchSize
-	if batchSize == 0 {
-		batchSize = 100
+	if batchSize <= 0 {
+		batchSize = defaultBatchSize
 	}
 
-	return &HECSender{
-		client: client,
-		config: config,
-		buffer: make([]*hecEvent, 0, batchSize),
-	}, nil
+	h := &HECSender{
+		client:    client,
+		config:    config,
+		batchSize: batchSize,
+		buffer:    make([]*hecEvent, 0, batchSize),
+		stop:      make(chan struct{}),
+		done:      make(chan struct{}),
+	}
+	go h.flushLoop()
+	return h, nil
 }
 
-// Send sends an event to HEC
+// Send queues an event. It returns an error when a flush it triggered failed
+// (the batch is kept and retried with backoff) or when the event pushed the
+// oldest one out of a full buffer.
 func (h *HECSender) Send(event *models.GeneratedEvent) error {
 	host := "siem-event-generator"
 	if event.Host != "" {
@@ -98,25 +129,77 @@ func (h *HECSender) Send(event *models.GeneratedEvent) error {
 		hecEvt.Sourcetype = h.config.Sourcetype
 	}
 
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	var dropErr error
+	if len(h.buffer) >= h.batchSize*10 {
+		// ponytail: fixed cap of ten batches; make it configurable if a lab needs more slack
+		h.buffer = h.buffer[1:]
+		dropErr = fmt.Errorf("HEC buffer full, oldest event dropped (%d dropped so far)", atomic.AddInt64(&h.dropped, 1))
+	}
 	h.buffer = append(h.buffer, hecEvt)
 
-	// Flush if buffer is full
-	if len(h.buffer) >= h.config.BatchSize || h.config.BatchSize == 0 {
-		return h.flush()
+	if len(h.buffer) >= h.batchSize {
+		if err := h.flushLocked(); err != nil {
+			return err
+		}
 	}
-
-	return nil
+	return dropErr
 }
 
-// flush sends all buffered events to HEC
-func (h *HECSender) flush() error {
-	if len(h.buffer) == 0 {
+// Dropped returns the number of events discarded because the buffer was full.
+func (h *HECSender) Dropped() int64 { return atomic.LoadInt64(&h.dropped) }
+
+// FailedFlushes returns the number of batch sends that failed.
+func (h *HECSender) FailedFlushes() int64 { return atomic.LoadInt64(&h.failed) }
+
+func (h *HECSender) flushLoop() {
+	defer close(h.done)
+	ticker := time.NewTicker(flushInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-h.stop:
+			return
+		case <-ticker.C:
+			h.mu.Lock()
+			if err := h.flushLocked(); err != nil {
+				log.Printf("hec: %v", err)
+			}
+			h.mu.Unlock()
+		}
+	}
+}
+
+// flushLocked sends the buffered events. The caller holds h.mu.
+func (h *HECSender) flushLocked() error {
+	if len(h.buffer) == 0 || time.Now().Before(h.nextTry) {
 		return nil
 	}
 
-	// Build the request body (newline-delimited JSON)
+	err := h.post(h.buffer)
+	if err != nil {
+		atomic.AddInt64(&h.failed, 1)
+		if h.backoff == 0 {
+			h.backoff = time.Second
+		} else if h.backoff < maxBackoff {
+			h.backoff *= 2
+		}
+		h.nextTry = time.Now().Add(h.backoff)
+		return fmt.Errorf("flush of %d events failed, retrying in %s: %w", len(h.buffer), h.backoff, err)
+	}
+
+	h.buffer = h.buffer[:0]
+	h.backoff = 0
+	h.nextTry = time.Time{}
+	return nil
+}
+
+// post sends one batch as newline-delimited JSON.
+func (h *HECSender) post(events []*hecEvent) error {
 	var body bytes.Buffer
-	for _, evt := range h.buffer {
+	for _, evt := range events {
 		data, err := json.Marshal(evt)
 		if err != nil {
 			return fmt.Errorf("failed to marshal event: %w", err)
@@ -135,11 +218,11 @@ func (h *HECSender) flush() error {
 
 	resp, err := h.client.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to send request: %w", err)
+		return fmt.Errorf("failed to send request: %w", SafeError(err))
 	}
 	defer resp.Body.Close()
 
-	respBody, err := io.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(io.LimitReader(resp.Body, 4096))
 	if err != nil {
 		return fmt.Errorf("failed to read response: %w", err)
 	}
@@ -149,10 +232,6 @@ func (h *HECSender) flush() error {
 		json.Unmarshal(respBody, &hecResp)
 		return fmt.Errorf("HEC returned status %d: %s", resp.StatusCode, hecResp.Text)
 	}
-
-	// Clear the buffer
-	h.buffer = h.buffer[:0]
-
 	return nil
 }
 
@@ -163,6 +242,7 @@ func (h *HECSender) Test() error {
 		Host:       "siem-event-generator",
 		Source:     "test",
 		Sourcetype: "_json",
+		Index:      h.config.Index,
 		Event:      "Connection test event",
 	}
 
@@ -201,7 +281,16 @@ func (h *HECSender) Test() error {
 	return fmt.Errorf("HEC returned status %d: %s", resp.StatusCode, hecResp.Text)
 }
 
-// Close flushes any remaining events and closes the sender
+// Close stops the timed flush and sends whatever is still buffered once.
 func (h *HECSender) Close() error {
-	return h.flush()
+	var err error
+	h.closeOnce.Do(func() {
+		close(h.stop)
+		<-h.done
+		h.mu.Lock()
+		defer h.mu.Unlock()
+		h.nextTry = time.Time{}
+		err = h.flushLocked()
+	})
+	return err
 }

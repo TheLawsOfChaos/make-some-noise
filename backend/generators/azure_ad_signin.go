@@ -134,13 +134,13 @@ func (g *AzureADSignInGenerator) randomApplication() (string, string) {
 
 func (g *AzureADSignInGenerator) randomDeviceInfo() map[string]interface{} {
 	return map[string]interface{}{
-		"deviceId":          uuid.New().String(),
-		"displayName":       fmt.Sprintf("%s-%s", g.RandomChoice([]string{"LAPTOP", "DESKTOP", "MOBILE"}), g.RandomString(6)),
-		"operatingSystem":   g.RandomChoice([]string{"Windows 10", "Windows 11", "macOS", "iOS", "Android"}),
-		"browser":           g.RandomChoice([]string{"Chrome 120", "Edge 120", "Safari 17", "Firefox 121"}),
-		"isCompliant":       g.RandomInt(0, 1) == 1,
-		"isManaged":         g.RandomInt(0, 1) == 1,
-		"trustType":         g.RandomChoice([]string{"Azure AD Joined", "Hybrid Azure AD Joined", "Azure AD Registered", ""}),
+		"deviceId":        uuid.New().String(),
+		"displayName":     fmt.Sprintf("%s-%s", g.RandomChoice([]string{"LAPTOP", "DESKTOP", "MOBILE"}), g.RandomString(6)),
+		"operatingSystem": g.RandomChoice([]string{"Windows 10", "Windows 11", "macOS", "iOS", "Android"}),
+		"browser":         g.RandomChoice([]string{"Chrome 120", "Edge 120", "Safari 17", "Firefox 121"}),
+		"isCompliant":     g.RandomInt(0, 1) == 1,
+		"isManaged":       g.RandomInt(0, 1) == 1,
+		"trustType":       g.RandomChoice([]string{"Azure AD Joined", "Hybrid Azure AD Joined", "Azure AD Registered", ""}),
 	}
 }
 
@@ -175,40 +175,40 @@ func (g *AzureADSignInGenerator) buildBaseEvent() map[string]interface{} {
 	tenantID := g.randomTenantID()
 
 	return map[string]interface{}{
-		"id":             uuid.New().String(),
-		"createdDateTime": timestamp.Format(time.RFC3339),
-		"userDisplayName": displayName,
-		"userPrincipalName": upn,
-		"userId":          userID,
-		"appId":           appID,
-		"appDisplayName":  appName,
-		"ipAddress":       g.RandomIPv4External(),
-		"clientAppUsed":   g.RandomChoice([]string{"Browser", "Mobile Apps and Desktop clients", "Exchange ActiveSync"}),
-		"correlationId":   uuid.New().String(),
+		"id":                      uuid.New().String(),
+		"createdDateTime":         timestamp.Format(time.RFC3339),
+		"userDisplayName":         displayName,
+		"userPrincipalName":       upn,
+		"userId":                  userID,
+		"appId":                   appID,
+		"appDisplayName":          appName,
+		"ipAddress":               g.RandomIPv4External(),
+		"clientAppUsed":           g.RandomChoice([]string{"Browser", "Mobile Apps and Desktop clients", "Exchange ActiveSync"}),
+		"correlationId":           uuid.New().String(),
 		"conditionalAccessStatus": "success",
-		"isInteractive":   true,
-		"riskDetail":      "none",
-		"riskLevelAggregated": "none",
-		"riskLevelDuringSignIn": "none",
-		"riskState":       "none",
-		"resourceDisplayName": appName,
-		"resourceId":      appID,
+		"isInteractive":           true,
+		"riskDetail":              "none",
+		"riskLevelAggregated":     "none",
+		"riskLevelDuringSignIn":   "none",
+		"riskState":               "none",
+		"resourceDisplayName":     appName,
+		"resourceId":              appID,
 		"status": map[string]interface{}{
-			"errorCode":       0,
-			"failureReason":   nil,
+			"errorCode":         0,
+			"failureReason":     nil,
 			"additionalDetails": nil,
 		},
-		"deviceDetail":    g.randomDeviceInfo(),
-		"location":        g.randomLocation(),
+		"deviceDetail": g.randomDeviceInfo(),
+		"location":     g.randomLocation(),
 		"authenticationDetails": []map[string]interface{}{
 			{
-				"authenticationMethod":     "Password",
+				"authenticationMethod":       "Password",
 				"authenticationStepDateTime": timestamp.Format(time.RFC3339),
-				"succeeded":                true,
+				"succeeded":                  true,
 			},
 		},
 		"authenticationRequirement": "singleFactorAuthentication",
-		"tenantId":        tenantID,
+		"tenantId":                  tenantID,
 	}
 }
 
@@ -217,7 +217,7 @@ func (g *AzureADSignInGenerator) generateInteractiveSuccess(overrides map[string
 	event := g.buildBaseEvent()
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -253,7 +253,7 @@ func (g *AzureADSignInGenerator) generateInteractiveFailure(overrides map[string
 	event["authenticationDetails"].([]map[string]interface{})[0]["succeeded"] = false
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -273,19 +273,19 @@ func (g *AzureADSignInGenerator) generateMFAChallenge(overrides map[string]inter
 	event["authenticationRequirement"] = "multiFactorAuthentication"
 	event["authenticationDetails"] = []map[string]interface{}{
 		{
-			"authenticationMethod":     "Password",
+			"authenticationMethod":       "Password",
 			"authenticationStepDateTime": timestamp.Add(-10 * time.Second).Format(time.RFC3339),
-			"succeeded":                true,
+			"succeeded":                  true,
 		},
 		{
-			"authenticationMethod":     g.RandomChoice([]string{"PhoneAppNotification", "PhoneAppOTP", "Text message", "Microsoft Authenticator App"}),
+			"authenticationMethod":       g.RandomChoice([]string{"PhoneAppNotification", "PhoneAppOTP", "Text message", "Microsoft Authenticator App"}),
 			"authenticationStepDateTime": timestamp.Format(time.RFC3339),
-			"succeeded":                true,
+			"succeeded":                  true,
 		},
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -311,15 +311,15 @@ func (g *AzureADSignInGenerator) generateConditionalAccessBlock(overrides map[st
 	policies := []string{"Block legacy authentication", "Require compliant device", "Block risky sign-ins", "Require MFA for admins"}
 	event["appliedConditionalAccessPolicies"] = []map[string]interface{}{
 		{
-			"id":            uuid.New().String(),
-			"displayName":   g.RandomChoice(policies),
-			"result":        "failure",
+			"id":                    uuid.New().String(),
+			"displayName":           g.RandomChoice(policies),
+			"result":                "failure",
 			"enforcedGrantControls": []string{"block"},
 		},
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -345,7 +345,7 @@ func (g *AzureADSignInGenerator) generateRiskySignin(overrides map[string]interf
 	event["riskState"] = "atRisk"
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -372,14 +372,14 @@ func (g *AzureADSignInGenerator) generateServicePrincipal(overrides map[string]i
 	event["authenticationRequirement"] = "singleFactorAuthentication"
 	event["authenticationDetails"] = []map[string]interface{}{
 		{
-			"authenticationMethod":     "ClientSecret",
+			"authenticationMethod":       "ClientSecret",
 			"authenticationStepDateTime": timestamp.Format(time.RFC3339),
-			"succeeded":                true,
+			"succeeded":                  true,
 		},
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),

@@ -176,7 +176,7 @@ func (g *WindowsSysmonGenerator) Generate(templateID string, overrides map[strin
 
 // RandomHash generates a random hash
 func (g *WindowsSysmonGenerator) RandomHash() string {
-	return fmt.Sprintf("SHA256=%s", strings.ToUpper(g.RandomString(64)))
+	return fmt.Sprintf("SHA256=%s", strings.ToUpper(g.RandomHex(64)))
 }
 
 // generateEvent1 creates a process creation event
@@ -186,36 +186,36 @@ func (g *WindowsSysmonGenerator) generateEvent1(overrides map[string]interface{}
 	processPath := fmt.Sprintf("C:\\Windows\\System32\\%s", processName)
 
 	fields := map[string]interface{}{
-		"RuleName":            "-",
-		"UtcTime":             now.Format("2006-01-02 15:04:05.000"),
-		"ProcessGuid":         fmt.Sprintf("{%s}", g.RandomGUID()),
-		"ProcessId":           g.RandomInt(1000, 65535),
-		"Image":               processPath,
-		"FileVersion":         "10.0.19041.1 (WinBuild.160101.0800)",
-		"Description":         "Windows Process",
-		"Product":             "Microsoft Windows Operating System",
-		"Company":             "Microsoft Corporation",
-		"OriginalFileName":    processName,
-		"CommandLine":         processPath,
-		"CurrentDirectory":    "C:\\Windows\\System32\\",
-		"User":                fmt.Sprintf("%s\\%s", g.RandomDomain(), g.RandomUsername()),
-		"LogonGuid":           fmt.Sprintf("{%s}", g.RandomGUID()),
-		"LogonId":             fmt.Sprintf("0x%x", g.RandomInt(100000, 9999999)),
-		"TerminalSessionId":   g.RandomInt(0, 5),
-		"IntegrityLevel":      g.RandomChoice([]string{"Low", "Medium", "High", "System"}),
-		"Hashes":              g.RandomHash(),
-		"ParentProcessGuid":   fmt.Sprintf("{%s}", g.RandomGUID()),
-		"ParentProcessId":     g.RandomInt(1000, 65535),
-		"ParentImage":         "C:\\Windows\\System32\\services.exe",
-		"ParentCommandLine":   "C:\\Windows\\system32\\services.exe",
-		"ParentUser":          "NT AUTHORITY\\SYSTEM",
+		"RuleName":          "-",
+		"UtcTime":           now.Format("2006-01-02 15:04:05.000"),
+		"ProcessGuid":       fmt.Sprintf("{%s}", g.RandomGUID()),
+		"ProcessId":         g.RandomInt(1000, 65535),
+		"Image":             processPath,
+		"FileVersion":       "10.0.19041.1 (WinBuild.160101.0800)",
+		"Description":       "Windows Process",
+		"Product":           "Microsoft Windows Operating System",
+		"Company":           "Microsoft Corporation",
+		"OriginalFileName":  processName,
+		"CommandLine":       processPath,
+		"CurrentDirectory":  "C:\\Windows\\System32\\",
+		"User":              fmt.Sprintf("%s\\%s", g.RandomDomain(), g.RandomUsername()),
+		"LogonGuid":         fmt.Sprintf("{%s}", g.RandomGUID()),
+		"LogonId":           fmt.Sprintf("0x%x", g.RandomInt(100000, 9999999)),
+		"TerminalSessionId": g.RandomInt(0, 5),
+		"IntegrityLevel":    g.RandomChoice([]string{"Low", "Medium", "High", "System"}),
+		"Hashes":            g.RandomHash(),
+		"ParentProcessGuid": fmt.Sprintf("{%s}", g.RandomGUID()),
+		"ParentProcessId":   g.RandomInt(1000, 65535),
+		"ParentImage":       "C:\\Windows\\System32\\services.exe",
+		"ParentCommandLine": "C:\\Windows\\system32\\services.exe",
+		"ParentUser":        "NT AUTHORITY\\SYSTEM",
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
 	computer := g.RandomFQDN()
 	event := g.buildEvent(1, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -239,23 +239,23 @@ func (g *WindowsSysmonGenerator) generateEvent3(overrides map[string]interface{}
 	initiated := g.RandomInt(0, 1) == 1
 
 	fields := map[string]interface{}{
-		"RuleName":           "-",
-		"UtcTime":            now.Format("2006-01-02 15:04:05.000"),
-		"ProcessGuid":        fmt.Sprintf("{%s}", g.RandomGUID()),
-		"ProcessId":          g.RandomInt(1000, 65535),
-		"Image":              g.RandomPath(),
-		"User":               fmt.Sprintf("%s\\%s", g.RandomDomain(), g.RandomUsername()),
-		"Protocol":           g.RandomChoice(protocols),
-		"Initiated":          initiated,
-		"SourceIsIpv6":       false,
-		"SourceIp":           g.RandomIPv4Internal(),
-		"SourceHostname":     g.RandomHostname(),
-		"SourcePort":         g.RandomPort(),
-		"SourcePortName":     "-",
-		"DestinationIsIpv6":  false,
-		"DestinationIp":      g.RandomIPv4External(),
+		"RuleName":            "-",
+		"UtcTime":             now.Format("2006-01-02 15:04:05.000"),
+		"ProcessGuid":         fmt.Sprintf("{%s}", g.RandomGUID()),
+		"ProcessId":           g.RandomInt(1000, 65535),
+		"Image":               g.RandomPath(),
+		"User":                fmt.Sprintf("%s\\%s", g.RandomDomain(), g.RandomUsername()),
+		"Protocol":            g.RandomChoice(protocols),
+		"Initiated":           initiated,
+		"SourceIsIpv6":        false,
+		"SourceIp":            g.RandomIPv4Internal(),
+		"SourceHostname":      g.RandomHostname(),
+		"SourcePort":          g.RandomPort(),
+		"SourcePortName":      "-",
+		"DestinationIsIpv6":   false,
+		"DestinationIp":       g.RandomIPv4External(),
 		"DestinationHostname": "-",
-		"DestinationPort":    g.RandomCommonPort(),
+		"DestinationPort":     g.RandomCommonPort(),
 		"DestinationPortName": "-",
 	}
 
@@ -263,7 +263,7 @@ func (g *WindowsSysmonGenerator) generateEvent3(overrides map[string]interface{}
 
 	computer := g.RandomFQDN()
 	event := g.buildEvent(3, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -312,7 +312,7 @@ func (g *WindowsSysmonGenerator) generateEvent7(overrides map[string]interface{}
 
 	computer := g.RandomFQDN()
 	event := g.buildEvent(7, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -354,7 +354,7 @@ func (g *WindowsSysmonGenerator) generateEvent8(overrides map[string]interface{}
 
 	computer := g.RandomFQDN()
 	event := g.buildEvent(8, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -396,7 +396,7 @@ func (g *WindowsSysmonGenerator) generateEvent10(overrides map[string]interface{
 
 	computer := g.RandomFQDN()
 	event := g.buildEvent(10, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -419,21 +419,21 @@ func (g *WindowsSysmonGenerator) generateEvent11(overrides map[string]interface{
 	extensions := []string{".exe", ".dll", ".ps1", ".bat", ".vbs", ".js", ".txt", ".log"}
 
 	fields := map[string]interface{}{
-		"RuleName":          "-",
-		"UtcTime":           now.Format("2006-01-02 15:04:05.000"),
-		"ProcessGuid":       fmt.Sprintf("{%s}", g.RandomGUID()),
-		"ProcessId":         g.RandomInt(1000, 65535),
-		"Image":             g.RandomPath(),
-		"TargetFilename":    fmt.Sprintf("C:\\Users\\%s\\AppData\\Local\\Temp\\%s%s", g.RandomUsername(), g.RandomString(8), g.RandomChoice(extensions)),
-		"CreationUtcTime":   now.Format("2006-01-02 15:04:05.000"),
-		"User":              fmt.Sprintf("%s\\%s", g.RandomDomain(), g.RandomUsername()),
+		"RuleName":        "-",
+		"UtcTime":         now.Format("2006-01-02 15:04:05.000"),
+		"ProcessGuid":     fmt.Sprintf("{%s}", g.RandomGUID()),
+		"ProcessId":       g.RandomInt(1000, 65535),
+		"Image":           g.RandomPath(),
+		"TargetFilename":  fmt.Sprintf("C:\\Users\\%s\\AppData\\Local\\Temp\\%s%s", g.RandomUsername(), g.RandomString(8), g.RandomChoice(extensions)),
+		"CreationUtcTime": now.Format("2006-01-02 15:04:05.000"),
+		"User":            fmt.Sprintf("%s\\%s", g.RandomDomain(), g.RandomUsername()),
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
 	computer := g.RandomFQDN()
 	event := g.buildEvent(11, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -463,23 +463,23 @@ func (g *WindowsSysmonGenerator) generateEvent22(overrides map[string]interface{
 
 	queryName := g.RandomChoice(domains)
 	fields := map[string]interface{}{
-		"RuleName":    "-",
-		"UtcTime":     now.Format("2006-01-02 15:04:05.000"),
-		"ProcessGuid": fmt.Sprintf("{%s}", g.RandomGUID()),
-		"ProcessId":   g.RandomInt(1000, 65535),
-		"QueryName":   queryName,
-		"QueryType":   g.RandomChoice(queryTypes),
-		"QueryStatus": g.RandomChoice(queryStatuses),
+		"RuleName":     "-",
+		"UtcTime":      now.Format("2006-01-02 15:04:05.000"),
+		"ProcessGuid":  fmt.Sprintf("{%s}", g.RandomGUID()),
+		"ProcessId":    g.RandomInt(1000, 65535),
+		"QueryName":    queryName,
+		"QueryType":    g.RandomChoice(queryTypes),
+		"QueryStatus":  g.RandomChoice(queryStatuses),
 		"QueryResults": fmt.Sprintf("type:  5 %s;::ffff:%s;", queryName, g.RandomIPv4External()),
-		"Image":       g.RandomPath(),
-		"User":        fmt.Sprintf("%s\\%s", g.RandomDomain(), g.RandomUsername()),
+		"Image":        g.RandomPath(),
+		"User":         fmt.Sprintf("%s\\%s", g.RandomDomain(), g.RandomUsername()),
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
 	computer := g.RandomFQDN()
 	event := g.buildEvent(22, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}

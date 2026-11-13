@@ -3,6 +3,8 @@ package generators
 import (
 	"encoding/json"
 	"fmt"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -148,7 +150,7 @@ func (g *LinuxAuditbeatGenerator) generateProcess(overrides map[string]interface
 			"action":   g.RandomChoice([]string{"executed", "fork", "exec"}),
 			"outcome":  g.RandomChoice([]string{"success", "failure"}),
 			"module":   "auditd",
-			"dataset":  "auditbeat.auditd",
+			"dataset":  "auditd",
 		},
 		"host": map[string]interface{}{
 			"name":         hostname,
@@ -166,17 +168,17 @@ func (g *LinuxAuditbeatGenerator) generateProcess(overrides map[string]interface
 			"ip": []string{g.RandomIPv4Internal()},
 		},
 		"process": map[string]interface{}{
-			"pid":        g.RandomInt(1000, 65535),
-			"ppid":       g.RandomInt(1, 1000),
-			"name":       procName,
-			"executable": procPath,
-			"args":       []string{procPath, "--config", "/etc/config.yaml"},
-			"args_count": 3,
-			"command_line": fmt.Sprintf("%s --config /etc/config.yaml", procPath),
+			"pid":               g.RandomInt(1000, 65535),
+			"ppid":              g.RandomInt(1, 1000),
+			"name":              procName,
+			"executable":        procPath,
+			"args":              []string{procPath, "--config", "/etc/config.yaml"},
+			"args_count":        3,
+			"command_line":      fmt.Sprintf("%s --config /etc/config.yaml", procPath),
 			"working_directory": "/home/" + user,
-			"start":      now.Add(-time.Duration(g.RandomInt(1, 3600)) * time.Second).Format(time.RFC3339Nano),
+			"start":             now.Add(-time.Duration(g.RandomInt(1, 3600)) * time.Second).Format(time.RFC3339Nano),
 			"hash": map[string]interface{}{
-				"sha256": g.RandomString(64),
+				"sha256": g.RandomHex(64),
 			},
 			"parent": map[string]interface{}{
 				"pid":        g.RandomInt(1, 1000),
@@ -185,8 +187,8 @@ func (g *LinuxAuditbeatGenerator) generateProcess(overrides map[string]interface
 			},
 		},
 		"user": map[string]interface{}{
-			"id":    fmt.Sprintf("%d", g.RandomInt(0, 65534)),
-			"name":  user,
+			"id":   fmt.Sprintf("%d", g.RandomInt(0, 65534)),
+			"name": user,
 			"group": map[string]interface{}{
 				"id":   fmt.Sprintf("%d", g.RandomInt(0, 65534)),
 				"name": user,
@@ -209,7 +211,7 @@ func (g *LinuxAuditbeatGenerator) generateProcess(overrides map[string]interface
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	rawEventBytes, err := json.MarshalIndent(fields, "", "  ")
+	rawEventBytes, err := json.Marshal(fields)
 	if err != nil {
 		return nil, err
 	}
@@ -261,7 +263,7 @@ func (g *LinuxAuditbeatGenerator) generateFile(overrides map[string]interface{})
 			"action":   g.RandomChoice(actions),
 			"outcome":  "success",
 			"module":   "file_integrity",
-			"dataset":  "auditbeat.file",
+			"dataset":  "file",
 		},
 		"host": map[string]interface{}{
 			"name":     hostname,
@@ -277,9 +279,9 @@ func (g *LinuxAuditbeatGenerator) generateFile(overrides map[string]interface{})
 		},
 		"file": map[string]interface{}{
 			"path":      filePath,
-			"name":      filePath[len(filePath)-len(filePath)+1:],
-			"directory": filePath[:len(filePath)-1],
-			"extension": "",
+			"name":      filepath.Base(filePath),
+			"directory": filepath.Dir(filePath),
+			"extension": strings.TrimPrefix(filepath.Ext(filePath), "."),
 			"type":      "file",
 			"size":      g.RandomInt(100, 100000),
 			"inode":     fmt.Sprintf("%d", g.RandomInt(100000, 9999999)),
@@ -291,9 +293,9 @@ func (g *LinuxAuditbeatGenerator) generateFile(overrides map[string]interface{})
 			"mtime":     now.Format(time.RFC3339Nano),
 			"ctime":     now.Format(time.RFC3339Nano),
 			"hash": map[string]interface{}{
-				"sha256": g.RandomString(64),
-				"sha1":   g.RandomString(40),
-				"md5":    g.RandomString(32),
+				"sha256": g.RandomHex(64),
+				"sha1":   g.RandomHex(40),
+				"md5":    g.RandomHex(32),
 			},
 		},
 		"user": map[string]interface{}{
@@ -308,7 +310,7 @@ func (g *LinuxAuditbeatGenerator) generateFile(overrides map[string]interface{})
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	rawEventBytes, err := json.MarshalIndent(fields, "", "  ")
+	rawEventBytes, err := json.Marshal(fields)
 	if err != nil {
 		return nil, err
 	}
@@ -346,7 +348,7 @@ func (g *LinuxAuditbeatGenerator) generateUserLogin(overrides map[string]interfa
 			"action":   g.RandomChoice([]string{"logged-in", "logged-out", "session-opened", "session-closed"}),
 			"outcome":  outcome,
 			"module":   "system",
-			"dataset":  "auditbeat.login",
+			"dataset":  "login",
 		},
 		"host": map[string]interface{}{
 			"name":     hostname,
@@ -401,7 +403,7 @@ func (g *LinuxAuditbeatGenerator) generateUserLogin(overrides map[string]interfa
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	rawEventBytes, err := json.MarshalIndent(fields, "", "  ")
+	rawEventBytes, err := json.Marshal(fields)
 	if err != nil {
 		return nil, err
 	}
@@ -435,8 +437,8 @@ func (g *LinuxAuditbeatGenerator) generateSocket(overrides map[string]interface{
 			"type":     []string{"connection", g.RandomChoice([]string{"start", "end"})},
 			"action":   "socket_opened",
 			"outcome":  "success",
-			"module":   "auditd",
-			"dataset":  "auditbeat.socket",
+			"module":   "system",
+			"dataset":  "socket",
 		},
 		"host": map[string]interface{}{
 			"name":     hostname,
@@ -477,7 +479,7 @@ func (g *LinuxAuditbeatGenerator) generateSocket(overrides map[string]interface{
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	rawEventBytes, err := json.MarshalIndent(fields, "", "  ")
+	rawEventBytes, err := json.Marshal(fields)
 	if err != nil {
 		return nil, err
 	}
@@ -526,7 +528,7 @@ func (g *LinuxAuditbeatGenerator) generatePackage(overrides map[string]interface
 			"type":     []string{g.RandomChoice([]string{"installation", "deletion", "change"})},
 			"action":   action,
 			"module":   "system",
-			"dataset":  "auditbeat.package",
+			"dataset":  "package",
 		},
 		"host": map[string]interface{}{
 			"name":     hostname,
@@ -556,7 +558,7 @@ func (g *LinuxAuditbeatGenerator) generatePackage(overrides map[string]interface
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	rawEventBytes, err := json.MarshalIndent(fields, "", "  ")
+	rawEventBytes, err := json.Marshal(fields)
 	if err != nil {
 		return nil, err
 	}

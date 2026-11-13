@@ -132,23 +132,23 @@ func (g *SuricataGenerator) generateAlert(overrides map[string]interface{}) (*mo
 	sid, msg, category := g.RandomSuricataSignature()
 
 	fields := map[string]interface{}{
-		"timestamp": now.Format("2006-01-02T15:04:05.000000-0700"),
-		"flow_id":   g.RandomInt(1000000000000, 9999999999999),
-		"in_iface":  fmt.Sprintf("eth%d", g.RandomInt(0, 3)),
+		"timestamp":  now.Format("2006-01-02T15:04:05.000000-0700"),
+		"flow_id":    g.RandomInt(1000000000000, 9999999999999),
+		"in_iface":   fmt.Sprintf("eth%d", g.RandomInt(0, 3)),
 		"event_type": "alert",
-		"src_ip":    g.RandomIPv4External(),
-		"src_port":  g.RandomPort(),
-		"dest_ip":   g.RandomIPv4Internal(),
-		"dest_port": g.RandomCommonPort(),
-		"proto":     g.RandomChoice([]string{"TCP", "UDP"}),
+		"src_ip":     g.RandomIPv4External(),
+		"src_port":   g.RandomPort(),
+		"dest_ip":    g.RandomIPv4Internal(),
+		"dest_port":  g.RandomCommonPort(),
+		"proto":      g.RandomChoice([]string{"TCP", "UDP"}),
 		"alert": map[string]interface{}{
-			"action":      g.RandomChoice([]string{"allowed", "blocked"}),
-			"gid":         1,
+			"action":       g.RandomChoice([]string{"allowed", "blocked"}),
+			"gid":          1,
 			"signature_id": sid,
-			"rev":         g.RandomInt(1, 10),
-			"signature":   msg,
-			"category":    category,
-			"severity":    g.RandomInt(1, 3),
+			"rev":          g.RandomInt(1, 10),
+			"signature":    msg,
+			"category":     category,
+			"severity":     g.RandomInt(1, 3),
 		},
 		"app_proto": g.RandomChoice([]string{"http", "tls", "dns", "ssh", "smtp", "ftp", "smb"}),
 		"flow": map[string]interface{}{
@@ -163,7 +163,7 @@ func (g *SuricataGenerator) generateAlert(overrides map[string]interface{}) (*mo
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	rawEventBytes, err := json.MarshalIndent(fields, "", "  ")
+	rawEventBytes, err := json.Marshal(fields)
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +223,7 @@ func (g *SuricataGenerator) generateFlow(overrides map[string]interface{}) (*mod
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	rawEventBytes, err := json.MarshalIndent(fields, "", "  ")
+	rawEventBytes, err := json.Marshal(fields)
 	if err != nil {
 		return nil, err
 	}
@@ -283,7 +283,7 @@ func (g *SuricataGenerator) generateDNS(overrides map[string]interface{}) (*mode
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	rawEventBytes, err := json.MarshalIndent(fields, "", "  ")
+	rawEventBytes, err := json.Marshal(fields)
 	if err != nil {
 		return nil, err
 	}
@@ -328,23 +328,23 @@ func (g *SuricataGenerator) generateHTTP(overrides map[string]interface{}) (*mod
 		"proto":      "TCP",
 		"tx_id":      g.RandomInt(0, 10),
 		"http": map[string]interface{}{
-			"hostname":             hostname,
-			"url":                  fmt.Sprintf("/%s/%s", g.RandomString(8), g.RandomString(12)),
-			"http_user_agent":      g.RandomChoice(userAgents),
-			"http_content_type":    g.RandomChoice(contentTypes),
-			"http_method":          g.RandomChoice(methods),
-			"protocol":             "HTTP/1.1",
-			"status":               statusCodes[g.RandomInt(0, len(statusCodes)-1)],
-			"length":               g.RandomInt(100, 100000),
-			"http_refer":           fmt.Sprintf("https://%s/", hostname),
-			"redirect":             "",
+			"hostname":          hostname,
+			"url":               fmt.Sprintf("/%s/%s", g.RandomString(8), g.RandomString(12)),
+			"http_user_agent":   g.RandomChoice(userAgents),
+			"http_content_type": g.RandomChoice(contentTypes),
+			"http_method":       g.RandomChoice(methods),
+			"protocol":          "HTTP/1.1",
+			"status":            statusCodes[g.RandomInt(0, len(statusCodes)-1)],
+			"length":            g.RandomInt(100, 100000),
+			"http_refer":        fmt.Sprintf("https://%s/", hostname),
+			"redirect":          "",
 		},
 		"host": g.RandomHostname(),
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	rawEventBytes, err := json.MarshalIndent(fields, "", "  ")
+	rawEventBytes, err := json.Marshal(fields)
 	if err != nil {
 		return nil, err
 	}
@@ -388,17 +388,17 @@ func (g *SuricataGenerator) generateTLS(overrides map[string]interface{}) (*mode
 			"subject":     fmt.Sprintf("CN=%s", sni),
 			"issuerdn":    fmt.Sprintf("CN=%s, O=%s", g.RandomChoice([]string{"R3", "E1", "DigiCert SHA2"}), g.RandomChoice(organizations)),
 			"serial":      fmt.Sprintf("%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X", g.RandomInt(0, 255), g.RandomInt(0, 255), g.RandomInt(0, 255), g.RandomInt(0, 255), g.RandomInt(0, 255), g.RandomInt(0, 255), g.RandomInt(0, 255), g.RandomInt(0, 255)),
-			"fingerprint": g.RandomString(40),
+			"fingerprint": g.RandomHex(40),
 			"sni":         sni,
 			"version":     g.RandomChoice(versions),
 			"notbefore":   notBefore.Format("2006-01-02T15:04:05"),
 			"notafter":    notAfter.Format("2006-01-02T15:04:05"),
 			"ja3": map[string]interface{}{
-				"hash":   g.RandomString(32),
+				"hash":   g.RandomHex(32),
 				"string": "771,4865-4866-4867-49195,0-23-65281-10-11-35-16-5-13-18-51-45-43-27-21,29-23-24,0",
 			},
 			"ja3s": map[string]interface{}{
-				"hash":   g.RandomString(32),
+				"hash":   g.RandomHex(32),
 				"string": "771,4865,43-51",
 			},
 		},
@@ -407,7 +407,7 @@ func (g *SuricataGenerator) generateTLS(overrides map[string]interface{}) (*mode
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	rawEventBytes, err := json.MarshalIndent(fields, "", "  ")
+	rawEventBytes, err := json.Marshal(fields)
 	if err != nil {
 		return nil, err
 	}
@@ -459,9 +459,9 @@ func (g *SuricataGenerator) generateFileInfo(overrides map[string]interface{}) (
 			"magic":    g.RandomChoice(magics),
 			"gaps":     false,
 			"state":    "CLOSED",
-			"md5":      g.RandomString(32),
-			"sha1":     g.RandomString(40),
-			"sha256":   g.RandomString(64),
+			"md5":      g.RandomHex(32),
+			"sha1":     g.RandomHex(40),
+			"sha256":   g.RandomHex(64),
 			"stored":   g.RandomInt(0, 1) == 1,
 			"file_id":  g.RandomInt(1, 1000),
 			"size":     g.RandomInt(100, 10000000),
@@ -472,7 +472,7 @@ func (g *SuricataGenerator) generateFileInfo(overrides map[string]interface{}) (
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	rawEventBytes, err := json.MarshalIndent(fields, "", "  ")
+	rawEventBytes, err := json.Marshal(fields)
 	if err != nil {
 		return nil, err
 	}

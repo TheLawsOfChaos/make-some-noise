@@ -131,22 +131,22 @@ func (g *DNSQueryGenerator) randomMaliciousDomain() string {
 func (g *DNSQueryGenerator) buildBaseEvent(queryName, queryType, responseCode, action string) map[string]interface{} {
 	timestamp := time.Now().UTC()
 	return map[string]interface{}{
-		"timestamp":       timestamp.Format(time.RFC3339Nano),
-		"dns_server":      g.randomDNSServer(),
-		"client_ip":       g.RandomIPv4Internal(),
-		"client_port":     g.RandomPort(),
-		"query_name":      queryName,
-		"query_type":      queryType,
-		"query_class":     "IN",
-		"response_code":   responseCode,
+		"timestamp":        timestamp.Format(time.RFC3339Nano),
+		"dns_server":       g.randomDNSServer(),
+		"client_ip":        g.RandomIPv4Internal(),
+		"client_port":      g.RandomPort(),
+		"query_name":       queryName,
+		"query_type":       queryType,
+		"query_class":      "IN",
+		"response_code":    responseCode,
 		"response_time_ms": g.RandomInt(1, 200),
-		"protocol":        g.RandomChoice([]string{"UDP", "TCP", "DoH", "DoT"}),
-		"action":          action,
-		"transaction_id":  g.RandomInt(1, 65535),
+		"protocol":         g.RandomChoice([]string{"UDP", "TCP", "DoH", "DoT"}),
+		"action":           action,
+		"transaction_id":   g.RandomInt(1, 65535),
 		"flags": map[string]interface{}{
-			"authoritative":     g.RandomInt(0, 1) == 1,
-			"truncated":         false,
-			"recursion_desired": true,
+			"authoritative":       g.RandomInt(0, 1) == 1,
+			"truncated":           false,
+			"recursion_desired":   true,
 			"recursion_available": true,
 		},
 	}
@@ -170,7 +170,7 @@ func (g *DNSQueryGenerator) generateQuerySuccess(overrides map[string]interface{
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -192,7 +192,7 @@ func (g *DNSQueryGenerator) generateQueryNXDomain(overrides map[string]interface
 	event["answers"] = []map[string]interface{}{}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -219,7 +219,7 @@ func (g *DNSQueryGenerator) generateQueryBlocked(overrides map[string]interface{
 	event["block_list"] = g.RandomChoice([]string{"threat-intel-feed", "category-block", "custom-blacklist"})
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -238,17 +238,17 @@ func (g *DNSQueryGenerator) generateQuerySuspicious(overrides map[string]interfa
 
 	event := g.buildBaseEvent(domain, "A", "NOERROR", "ALLOW")
 	event["threat_intel"] = map[string]interface{}{
-		"matched":   true,
-		"category":  g.RandomChoice([]string{"DGA", "C2", "malware", "phishing"}),
+		"matched":    true,
+		"category":   g.RandomChoice([]string{"DGA", "C2", "malware", "phishing"}),
 		"confidence": g.RandomInt(60, 100),
-		"source":    g.RandomChoice([]string{"internal-ioc", "threat-feed-1", "machine-learning"}),
+		"source":     g.RandomChoice([]string{"internal-ioc", "threat-feed-1", "machine-learning"}),
 	}
 	event["answers"] = []map[string]interface{}{
 		{"type": "A", "data": g.RandomIPv4External(), "ttl": g.RandomInt(60, 3600)},
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -271,7 +271,7 @@ func (g *DNSQueryGenerator) generateQueryExternal(overrides map[string]interface
 	event["violation_type"] = "external_dns_usage"
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -297,7 +297,7 @@ func (g *DNSQueryGenerator) generateQueryTunneling(overrides map[string]interfac
 	event["entropy"] = fmt.Sprintf("%.2f", float64(g.RandomInt(35, 45))/10)
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),

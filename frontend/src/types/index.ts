@@ -116,6 +116,7 @@ export interface NoiseStats {
   total_generated: number;
   total_sent: number;
   total_errors: number;
+  total_dropped: number;
   events_per_second: number;
   last_event_at?: string;
   by_event_type: Record<string, number>;
@@ -124,10 +125,16 @@ export interface NoiseStats {
   error_samples?: string[];
 }
 
+export interface SkippedSource {
+  event_type_id: string;
+  reason: string;
+}
+
 export interface NoiseStatus {
   running: boolean;
   started_at?: string;
   current_config?: NoiseConfig;
+  skipped_sources?: SkippedSource[];
   stats: NoiseStats;
 }
 

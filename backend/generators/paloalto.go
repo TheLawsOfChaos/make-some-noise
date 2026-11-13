@@ -149,11 +149,8 @@ func (g *PaloAltoGenerator) generateTraffic(action string, overrides map[string]
 	duration := g.RandomInt(1, 300)
 
 	// TRAFFIC log format
-	rawEvent := fmt.Sprintf("<%d>%s %s 1,2024/01/01 %s,0,%s,TRAFFIC,%s,2049,%s,%s/%s/%s/%d,%s/%s/%s/%d,%s,vsys1,%s,%s,ethernet1/1,ethernet1/2,%s,%d,%d,%d,%d,%s,%s,end,%s,%d,%d,n/a,0,0,0,0,0,0,0,0,0,N/A",
-		14, // facility local0, severity info
-		timestamp.Format("Jan 02 15:04:05"),
-		hostname,
-		timestamp.Format("15:04:05"),
+	rawEvent := fmt.Sprintf("1,%s,0,%s,TRAFFIC,%s,2049,%s,%s/%s/%s/%d,%s/%s/%s/%d,%s,vsys1,%s,%s,ethernet1/1,ethernet1/2,%s,%d,%d,%d,%d,%s,%s,end,%s,%d,%d,n/a,0,0,0,0,0,0,0,0,0,N/A",
+		timestamp.Format("2006/01/02 15:04:05"),
 		g.RandomString(16),
 		action,
 		g.RandomString(16),
@@ -175,21 +172,21 @@ func (g *PaloAltoGenerator) generateTraffic(action string, overrides map[string]
 	)
 
 	fields := map[string]interface{}{
-		"log_type":     "TRAFFIC",
-		"action":       action,
-		"src_ip":       srcIP,
-		"src_port":     srcPort,
-		"dst_ip":       dstIP,
-		"dst_port":     dstPort,
-		"src_zone":     srcZone,
-		"dst_zone":     dstZone,
-		"application":  g.randomApplication(),
-		"rule":         g.randomRule(),
-		"session_id":   sessionID,
-		"bytes":        bytes,
-		"packets":      packets,
-		"duration":     duration,
-		"hostname":     hostname,
+		"log_type":    "TRAFFIC",
+		"action":      action,
+		"src_ip":      srcIP,
+		"src_port":    srcPort,
+		"dst_ip":      dstIP,
+		"dst_port":    dstPort,
+		"src_zone":    srcZone,
+		"dst_zone":    dstZone,
+		"application": g.randomApplication(),
+		"rule":        g.randomRule(),
+		"session_id":  sessionID,
+		"bytes":       bytes,
+		"packets":     packets,
+		"duration":    duration,
+		"hostname":    hostname,
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
@@ -233,11 +230,8 @@ func (g *PaloAltoGenerator) generateThreat(threatType string, overrides map[stri
 	threatID := g.RandomInt(10000, 99999)
 	sessionID := g.RandomInt(100000, 999999)
 
-	rawEvent := fmt.Sprintf("<%d>%s %s 1,2024/01/01 %s,0,%s,THREAT,%s,2049,%s/%s/%s/%d,%s/%s/%s/%d,%s,vsys1,%s,%s,ethernet1/1,ethernet1/2,%s,%d,0,%s,0,%s,alert,%s,%s,%s,%d,%s,%d",
-		10, // facility local0, severity warning
-		timestamp.Format("Jan 02 15:04:05"),
-		hostname,
-		timestamp.Format("15:04:05"),
+	rawEvent := fmt.Sprintf("1,%s,0,%s,THREAT,%s,2049,%s,%s/%s/%s/%d,%s/%s/%s/%d,%s,vsys1,%s,%s,ethernet1/1,ethernet1/2,%s,%d,0,%s,0,%s,alert,%s,%s,%s,%d,%s,%d",
+		timestamp.Format("2006/01/02 15:04:05"),
 		g.RandomString(16),
 		threatType,
 		g.RandomString(16),
@@ -303,11 +297,8 @@ func (g *PaloAltoGenerator) generateURL(action string, overrides map[string]inte
 
 	sessionID := g.RandomInt(100000, 999999)
 
-	rawEvent := fmt.Sprintf("<%d>%s %s 1,2024/01/01 %s,0,%s,URL,%s,2049,%s/%s/%s/%d,%s/%s/%s/443,web-browsing,vsys1,%s,%s,ethernet1/1,ethernet1/2,%s,%d,0,%s,%s,%s,%s,%s,informational,forward,%d,container-page",
-		14,
-		timestamp.Format("Jan 02 15:04:05"),
-		hostname,
-		timestamp.Format("15:04:05"),
+	rawEvent := fmt.Sprintf("1,%s,0,%s,URL,%s,2049,%s,%s/%s/%s/%d,%s/%s/%s/443,web-browsing,vsys1,%s,%s,ethernet1/1,ethernet1/2,%s,%d,0,%s,%s,%s,%s,%s,informational,forward,%d,container-page",
+		timestamp.Format("2006/01/02 15:04:05"),
 		g.RandomString(16),
 		action,
 		g.RandomString(16),
@@ -326,14 +317,14 @@ func (g *PaloAltoGenerator) generateURL(action string, overrides map[string]inte
 	)
 
 	fields := map[string]interface{}{
-		"log_type":    "URL",
-		"action":      action,
-		"url":         url,
-		"category":    category,
-		"src_ip":      srcIP,
-		"dst_ip":      dstIP,
-		"session_id":  sessionID,
-		"hostname":    hostname,
+		"log_type":   "URL",
+		"action":     action,
+		"url":        url,
+		"category":   category,
+		"src_ip":     srcIP,
+		"dst_ip":     dstIP,
+		"session_id": sessionID,
+		"hostname":   hostname,
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)

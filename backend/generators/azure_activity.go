@@ -166,8 +166,8 @@ func (g *AzureActivityGenerator) generateVMCreate(overrides map[string]interface
 	event["resourceId"] = fmt.Sprintf("/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Compute/virtualMachines/%s", subscriptionID, resourceGroup, vmName)
 
 	event["properties"] = map[string]interface{}{
-		"statusCode":    "Created",
-		"statusMessage": "Resource created successfully",
+		"statusCode":       "Created",
+		"statusMessage":    "Resource created successfully",
 		"serviceRequestId": uuid.New().String(),
 		"entity": map[string]interface{}{
 			"vmSize":   g.RandomChoice([]string{"Standard_D2s_v3", "Standard_D4s_v3", "Standard_B2ms"}),
@@ -176,7 +176,7 @@ func (g *AzureActivityGenerator) generateVMCreate(overrides map[string]interface
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -204,7 +204,7 @@ func (g *AzureActivityGenerator) generateVMDelete(overrides map[string]interface
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -235,7 +235,7 @@ func (g *AzureActivityGenerator) generateRoleAssignment(overrides map[string]int
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -274,7 +274,7 @@ func (g *AzureActivityGenerator) generateNSGRuleCreate(overrides map[string]inte
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -304,7 +304,7 @@ func (g *AzureActivityGenerator) generateStorageKeyRegen(overrides map[string]in
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -328,14 +328,14 @@ func (g *AzureActivityGenerator) generateKeyVaultSecretGet(overrides map[string]
 	event["resourceId"] = fmt.Sprintf("/subscriptions/%s/resourceGroups/%s/providers/Microsoft.KeyVault/vaults/%s/secrets/%s", subscriptionID, resourceGroup, vaultName, secretName)
 
 	event["properties"] = map[string]interface{}{
-		"statusCode":      "OK",
-		"requestUri":      fmt.Sprintf("https://%s.vault.azure.net/secrets/%s?api-version=7.3", vaultName, secretName),
-		"id":              fmt.Sprintf("https://%s.vault.azure.net/secrets/%s/%s", vaultName, secretName, g.RandomString(32)),
-		"clientInfo":      "AzureCLI/2.50.0",
+		"statusCode": "OK",
+		"requestUri": fmt.Sprintf("https://%s.vault.azure.net/secrets/%s?api-version=7.3", vaultName, secretName),
+		"id":         fmt.Sprintf("https://%s.vault.azure.net/secrets/%s/%s", vaultName, secretName, g.RandomString(32)),
+		"clientInfo": "AzureCLI/2.50.0",
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),

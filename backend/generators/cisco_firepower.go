@@ -165,7 +165,7 @@ func (g *CiscoFirepowerGenerator) generateIntrusion(overrides map[string]interfa
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	rawEventBytes, err := json.MarshalIndent(fields, "", "  ")
+	rawEventBytes, err := json.Marshal(fields)
 	if err != nil {
 		return nil, err
 	}
@@ -194,37 +194,37 @@ func (g *CiscoFirepowerGenerator) generateConnection(overrides map[string]interf
 	responderPkts := responderBytes / g.RandomInt(500, 1500)
 
 	fields := map[string]interface{}{
-		"timestamp":          now.Format(time.RFC3339Nano),
-		"event_type":         "connection",
-		"sensor_id":          g.RandomString(8),
-		"sensor_name":        fmt.Sprintf("FTD-%s", g.RandomString(4)),
-		"policy":             fmt.Sprintf("AC_Policy_%s", g.RandomChoice([]string{"Production", "Staging", "Default"})),
-		"src_ip":             g.RandomIPv4Internal(),
-		"src_port":           g.RandomPort(),
-		"dst_ip":             g.RandomIPv4External(),
-		"dst_port":           g.RandomCommonPort(),
-		"protocol":           g.RandomChoice([]string{"TCP", "UDP"}),
-		"action":             g.RandomChoice(actions),
-		"reason":             g.RandomChoice(reasons),
-		"ingress_interface":  fmt.Sprintf("ethernet1/%d", g.RandomInt(1, 8)),
-		"egress_interface":   fmt.Sprintf("ethernet1/%d", g.RandomInt(1, 8)),
-		"src_zone":           g.RandomChoice([]string{"Inside", "Trusted", "Internal"}),
-		"dst_zone":           g.RandomChoice([]string{"Outside", "DMZ", "Internet"}),
-		"initiator_bytes":    initiatorBytes,
-		"responder_bytes":    responderBytes,
-		"initiator_packets":  initiatorPkts,
-		"responder_packets":  responderPkts,
-		"application":        g.RandomChoice([]string{"HTTPS", "HTTP", "DNS", "SSH", "SMB", "FTP", "SMTP"}),
-		"url":                fmt.Sprintf("https://%s.com/%s", g.RandomString(8), g.RandomString(12)),
-		"url_category":       g.RandomChoice([]string{"Business", "Technology", "Unknown", "Malware", "Social Networking"}),
-		"web_application":    g.RandomChoice([]string{"Google", "Microsoft", "Amazon", "Facebook", "Unknown"}),
-		"client":             g.RandomChoice([]string{"Chrome", "Firefox", "Edge", "Safari", "Unknown"}),
-		"client_version":     fmt.Sprintf("%d.%d.%d", g.RandomInt(80, 120), g.RandomInt(0, 99), g.RandomInt(0, 9999)),
+		"timestamp":         now.Format(time.RFC3339Nano),
+		"event_type":        "connection",
+		"sensor_id":         g.RandomString(8),
+		"sensor_name":       fmt.Sprintf("FTD-%s", g.RandomString(4)),
+		"policy":            fmt.Sprintf("AC_Policy_%s", g.RandomChoice([]string{"Production", "Staging", "Default"})),
+		"src_ip":            g.RandomIPv4Internal(),
+		"src_port":          g.RandomPort(),
+		"dst_ip":            g.RandomIPv4External(),
+		"dst_port":          g.RandomCommonPort(),
+		"protocol":          g.RandomChoice([]string{"TCP", "UDP"}),
+		"action":            g.RandomChoice(actions),
+		"reason":            g.RandomChoice(reasons),
+		"ingress_interface": fmt.Sprintf("ethernet1/%d", g.RandomInt(1, 8)),
+		"egress_interface":  fmt.Sprintf("ethernet1/%d", g.RandomInt(1, 8)),
+		"src_zone":          g.RandomChoice([]string{"Inside", "Trusted", "Internal"}),
+		"dst_zone":          g.RandomChoice([]string{"Outside", "DMZ", "Internet"}),
+		"initiator_bytes":   initiatorBytes,
+		"responder_bytes":   responderBytes,
+		"initiator_packets": initiatorPkts,
+		"responder_packets": responderPkts,
+		"application":       g.RandomChoice([]string{"HTTPS", "HTTP", "DNS", "SSH", "SMB", "FTP", "SMTP"}),
+		"url":               fmt.Sprintf("https://%s.com/%s", g.RandomString(8), g.RandomString(12)),
+		"url_category":      g.RandomChoice([]string{"Business", "Technology", "Unknown", "Malware", "Social Networking"}),
+		"web_application":   g.RandomChoice([]string{"Google", "Microsoft", "Amazon", "Facebook", "Unknown"}),
+		"client":            g.RandomChoice([]string{"Chrome", "Firefox", "Edge", "Safari", "Unknown"}),
+		"client_version":    fmt.Sprintf("%d.%d.%d", g.RandomInt(80, 120), g.RandomInt(0, 99), g.RandomInt(0, 9999)),
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	rawEventBytes, err := json.MarshalIndent(fields, "", "  ")
+	rawEventBytes, err := json.Marshal(fields)
 	if err != nil {
 		return nil, err
 	}
@@ -249,32 +249,32 @@ func (g *CiscoFirepowerGenerator) generateFile(overrides map[string]interface{})
 	directions := []string{"Download", "Upload"}
 
 	fields := map[string]interface{}{
-		"timestamp":       now.Format(time.RFC3339Nano),
-		"event_type":      "file",
-		"sensor_id":       g.RandomString(8),
-		"sensor_name":     fmt.Sprintf("FTD-%s", g.RandomString(4)),
-		"policy":          fmt.Sprintf("File_Policy_%s", g.RandomChoice([]string{"Production", "Staging", "Default"})),
-		"src_ip":          g.RandomIPv4External(),
-		"src_port":        g.RandomPort(),
-		"dst_ip":          g.RandomIPv4Internal(),
-		"dst_port":        g.RandomCommonPort(),
-		"protocol":        "TCP",
-		"file_name":       fmt.Sprintf("%s.%s", g.RandomString(10), g.RandomChoice([]string{"exe", "dll", "pdf", "docx", "zip"})),
-		"file_size":       g.RandomInt(1000, 10000000),
-		"file_type":       g.RandomChoice(fileTypes),
-		"file_action":     g.RandomChoice(fileActions),
-		"sha256":          g.RandomString(64),
-		"direction":       g.RandomChoice(directions),
-		"application":     g.RandomChoice([]string{"HTTP", "HTTPS", "FTP", "SMB", "SMTP"}),
-		"url":             fmt.Sprintf("https://%s.com/files/%s", g.RandomString(8), g.RandomString(12)),
-		"disposition":     g.RandomChoice([]string{"Unknown", "Clean", "Malware", "Custom Detection", "Unavailable"}),
-		"threat_score":    g.RandomInt(0, 100),
-		"archive_depth":   g.RandomInt(0, 3),
+		"timestamp":     now.Format(time.RFC3339Nano),
+		"event_type":    "file",
+		"sensor_id":     g.RandomString(8),
+		"sensor_name":   fmt.Sprintf("FTD-%s", g.RandomString(4)),
+		"policy":        fmt.Sprintf("File_Policy_%s", g.RandomChoice([]string{"Production", "Staging", "Default"})),
+		"src_ip":        g.RandomIPv4External(),
+		"src_port":      g.RandomPort(),
+		"dst_ip":        g.RandomIPv4Internal(),
+		"dst_port":      g.RandomCommonPort(),
+		"protocol":      "TCP",
+		"file_name":     fmt.Sprintf("%s.%s", g.RandomString(10), g.RandomChoice([]string{"exe", "dll", "pdf", "docx", "zip"})),
+		"file_size":     g.RandomInt(1000, 10000000),
+		"file_type":     g.RandomChoice(fileTypes),
+		"file_action":   g.RandomChoice(fileActions),
+		"sha256":        g.RandomHex(64),
+		"direction":     g.RandomChoice(directions),
+		"application":   g.RandomChoice([]string{"HTTP", "HTTPS", "FTP", "SMB", "SMTP"}),
+		"url":           fmt.Sprintf("https://%s.com/files/%s", g.RandomString(8), g.RandomString(12)),
+		"disposition":   g.RandomChoice([]string{"Unknown", "Clean", "Malware", "Custom Detection", "Unavailable"}),
+		"threat_score":  g.RandomInt(0, 100),
+		"archive_depth": g.RandomInt(0, 3),
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	rawEventBytes, err := json.MarshalIndent(fields, "", "  ")
+	rawEventBytes, err := json.Marshal(fields)
 	if err != nil {
 		return nil, err
 	}
@@ -321,34 +321,34 @@ func (g *CiscoFirepowerGenerator) generateMalware(overrides map[string]interface
 	}
 
 	fields := map[string]interface{}{
-		"timestamp":        now.Format(time.RFC3339Nano),
-		"event_type":       "malware",
-		"sensor_id":        g.RandomString(8),
-		"sensor_name":      fmt.Sprintf("FTD-%s", g.RandomString(4)),
-		"policy":           fmt.Sprintf("Malware_Policy_%s", g.RandomChoice([]string{"Production", "Staging", "Default"})),
-		"src_ip":           g.RandomIPv4External(),
-		"src_port":         g.RandomPort(),
-		"dst_ip":           g.RandomIPv4Internal(),
-		"dst_port":         g.RandomCommonPort(),
-		"protocol":         "TCP",
-		"file_name":        fmt.Sprintf("%s.exe", g.RandomString(10)),
-		"file_size":        g.RandomInt(10000, 5000000),
-		"sha256":           g.RandomString(64),
-		"malware_name":     g.RandomChoice(malwareNames),
-		"threat_type":      g.RandomChoice(threatTypes),
-		"threat_score":     g.RandomInt(50, 100),
-		"disposition":      "Malware",
-		"action":           g.RandomChoice([]string{"Block", "Detect", "Quarantine"}),
-		"amp_disposition":  g.RandomChoice([]string{"Malicious", "High Risk", "Unknown"}),
-		"amp_threat_name":  g.RandomChoice(malwareNames),
-		"application":      g.RandomChoice([]string{"HTTP", "HTTPS", "SMTP", "FTP"}),
-		"direction":        g.RandomChoice([]string{"Download", "Upload"}),
-		"retrospective":    g.RandomInt(0, 1) == 1,
+		"timestamp":       now.Format(time.RFC3339Nano),
+		"event_type":      "malware",
+		"sensor_id":       g.RandomString(8),
+		"sensor_name":     fmt.Sprintf("FTD-%s", g.RandomString(4)),
+		"policy":          fmt.Sprintf("Malware_Policy_%s", g.RandomChoice([]string{"Production", "Staging", "Default"})),
+		"src_ip":          g.RandomIPv4External(),
+		"src_port":        g.RandomPort(),
+		"dst_ip":          g.RandomIPv4Internal(),
+		"dst_port":        g.RandomCommonPort(),
+		"protocol":        "TCP",
+		"file_name":       fmt.Sprintf("%s.exe", g.RandomString(10)),
+		"file_size":       g.RandomInt(10000, 5000000),
+		"sha256":          g.RandomHex(64),
+		"malware_name":    g.RandomChoice(malwareNames),
+		"threat_type":     g.RandomChoice(threatTypes),
+		"threat_score":    g.RandomInt(50, 100),
+		"disposition":     "Malware",
+		"action":          g.RandomChoice([]string{"Block", "Detect", "Quarantine"}),
+		"amp_disposition": g.RandomChoice([]string{"Malicious", "High Risk", "Unknown"}),
+		"amp_threat_name": g.RandomChoice(malwareNames),
+		"application":     g.RandomChoice([]string{"HTTP", "HTTPS", "SMTP", "FTP"}),
+		"direction":       g.RandomChoice([]string{"Download", "Upload"}),
+		"retrospective":   g.RandomInt(0, 1) == 1,
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
-	rawEventBytes, err := json.MarshalIndent(fields, "", "  ")
+	rawEventBytes, err := json.Marshal(fields)
 	if err != nil {
 		return nil, err
 	}
