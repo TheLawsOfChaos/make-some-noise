@@ -9,8 +9,8 @@ Since you're sharing this repository with collaborators, credentials are stored 
 ### Step 1: Create a Docker Hub Access Token
 
 1. Log in to [Docker Hub](https://hub.docker.com/)
-2. Click your username (top right) → **Account Settings**
-3. Go to **Security** → **Access Tokens**
+2. Click your username (top right) then **Account Settings**
+3. Go to **Security** then **Access Tokens**
 4. Click **New Access Token**
 5. Give it a description (e.g., "GitHub Actions - make-some-noise")
 6. Select **Read, Write, Delete** permissions
@@ -19,7 +19,7 @@ Since you're sharing this repository with collaborators, credentials are stored 
 ### Step 2: Add Secrets to GitHub Repository
 
 1. Go to your GitHub repository: https://github.com/TheLawsOfChaos/make-some-noise
-2. Navigate to **Settings** → **Secrets and variables** → **Actions**
+2. Navigate to **Settings** then **Secrets and variables** then **Actions**
 3. Click **New repository secret** and add:
 
    | Secret Name | Value |
@@ -36,39 +36,34 @@ Since you're sharing this repository with collaborators, credentials are stored 
 
 ## How Versioning Works
 
-The CI/CD pipeline determines the version tag in this order:
+Each image has its own version in `versions.json` (`frontend` and `backend`). On a push to `main`, `docker-publish.yml`:
 
-1. **Manual Override**: When using "Run workflow" manually, you can specify a version
-2. **PR Title**: Include a version in your PR title (recommended):
-   - `Release v1.2.3 - New feature`
-   - `v1.2.3: Bug fixes`
-   - `1.2.3 Update dependencies`
-3. **VERSION File**: Falls back to the `VERSION` file in the repo root
-4. **Commit SHA**: Last resort - uses `0.0.0-<short-sha>`
+1. Builds only the image whose files changed (`frontend/`, `backend/`, the matching Dockerfile, or that service's section of `docker-compose.yml`).
+2. Picks the version, in this order: a manual "Run workflow" override; a `frontend:x.y.z` or `backend:x.y.z` token in the commit message; otherwise the patch number in `versions.json` plus one.
+3. Pushes `<image>:<version>` and `<image>:latest` for `linux/amd64` and `linux/arm64`.
+4. Commits the new `versions.json` back to `main` with `[skip ci]`.
 
-### Version Format
-
-- Versions should follow semantic versioning: `MAJOR.MINOR.PATCH`
-- Pre-release versions are supported: `1.2.3-beta.1`
-- The `v` prefix is optional and will be stripped: `v1.2.3` → `1.2.3`
+The backend bakes its version into `/api/health` from `versions.json` at build time. `docker-compose.release.yml` should be bumped by hand when a release is meant for it.
 
 ## Workflow Triggers
 
 ### On Pull Request (docker-build-test.yml)
-- Builds both images to verify they compile
-- Shows what version would be published
-- Does NOT push to Docker Hub
+- Runs gofmt, go vet and the Go tests with the race detector
+- Builds the frontend (type check included)
+- Builds both images without pushing, in a build cache scope the publish workflow does not read
+- Shows the versions that `main` currently carries
 
 ### On Push to Main (docker-publish.yml)
-- Triggered when PR is merged
-- Builds and pushes both images to Docker Hub
-- Tags: `<version>` and `latest`
-- Builds for both `linux/amd64` and `linux/arm64`
+- Builds and pushes the changed images as above
+- Only the job that commits `versions.json` has write access to the repository
 
 ### Manual Trigger
-- Go to Actions → "Build and Push Docker Images"
-- Click "Run workflow"
-- Optionally specify a version override
+- Actions, "Build and Push Docker Images", "Run workflow"
+- Tick the image(s) to build and optionally give a version
+
+## Pinned actions
+
+Every `uses:` is pinned to a commit SHA with the tag in a comment. To update one, change both.
 
 ## Published Images
 
@@ -89,5 +84,4 @@ After successful merge, images are available at:
 - Ensure all files needed for the build are committed (not in `.gitignore`)
 
 ### Wrong version published
-- Check your PR title includes the version in the right format
-- Update the `VERSION` file before merging if not using PR title versioning
+- Put `backend:x.y.z` or `frontend:x.y.z` in the merge commit message, or run the workflow by hand with a version
