@@ -40,7 +40,11 @@ type DestinationConfig struct {
 	Index       string `json:"index,omitempty"`
 	Source      string `json:"source,omitempty"`
 	Sourcetype  string `json:"sourcetype,omitempty"`
-	VerifySSL   bool   `json:"verify_ssl,omitempty"`
+	// InsecureSkipVerify disables TLS certificate verification. The old
+	// verify_ssl field defaulted to false (no verification); the default is
+	// now to verify, and an explicit insecure_skip_verify: true is needed for
+	// self-signed collectors.
+	InsecureSkipVerify bool `json:"insecure_skip_verify,omitempty"`
 	BatchSize   int    `json:"batch_size,omitempty"`
 
 	// File configuration

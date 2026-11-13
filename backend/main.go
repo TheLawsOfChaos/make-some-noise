@@ -19,7 +19,7 @@ func main() {
 	if configDir == "" {
 		configDir = "/config"
 	}
-	if err := os.MkdirAll(configDir, 0755); err != nil {
+	if err := os.MkdirAll(configDir, 0700); err != nil {
 		log.Printf("WARNING: could not create config dir %s: %v", configDir, err)
 	}
 

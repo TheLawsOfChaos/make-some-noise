@@ -50,13 +50,19 @@ func NewHECSender(config models.DestinationConfig) (*HECSender, error) {
 
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: !config.VerifySSL,
+			InsecureSkipVerify: config.InsecureSkipVerify, //nolint:gosec // operator opt-in for self-signed collectors
+			MinVersion:         tls.VersionTLS12,
 		},
 	}
 
 	client := &http.Client{
 		Transport: transport,
 		Timeout:   30 * time.Second,
+		// Never follow a redirect: the Authorization header must not travel
+		// to a host the operator did not configure.
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
 	}
 
 	batchSize := config.BatchSize
@@ -175,22 +181,24 @@ func (h *HECSender) Test() error {
 
 	resp, err := h.client.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to connect to HEC: %w", err)
+		return fmt.Errorf("failed to connect to HEC: %w", SafeError(err))
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusForbidden {
+	switch resp.StatusCode {
+	case http.StatusOK:
+		return nil
+	case http.StatusUnauthorized:
 		return fmt.Errorf("authentication failed: invalid HEC token")
+	case http.StatusForbidden:
+		return fmt.Errorf("authentication failed: HEC token disabled")
+	case http.StatusMovedPermanently, http.StatusFound, http.StatusTemporaryRedirect, http.StatusPermanentRedirect:
+		return fmt.Errorf("HEC URL redirects (status %d); configure the final URL", resp.StatusCode)
 	}
-
-	if resp.StatusCode != http.StatusOK {
-		respBody, _ := io.ReadAll(resp.Body)
-		var hecResp hecResponse
-		json.Unmarshal(respBody, &hecResp)
-		return fmt.Errorf("HEC returned status %d: %s", resp.StatusCode, hecResp.Text)
-	}
-
-	return nil
+	respBody, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
+	var hecResp hecResponse
+	json.Unmarshal(respBody, &hecResp)
+	return fmt.Errorf("HEC returned status %d: %s", resp.StatusCode, hecResp.Text)
 }
 
 // Close flushes any remaining events and closes the sender

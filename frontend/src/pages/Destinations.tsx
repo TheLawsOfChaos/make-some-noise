@@ -264,7 +264,8 @@ export default function Destinations() {
                           className="input"
                           value={formData.config.token || ''}
                           onChange={(e) => updateConfig('token', e.target.value)}
-                          required
+                          placeholder={editingId ? 'leave as is to keep the stored token' : ''}
+                          required={!editingId}
                         />
                       </div>
                       <div>
@@ -279,12 +280,12 @@ export default function Destinations() {
                       <div className="flex items-center gap-2">
                         <input
                           type="checkbox"
-                          id="verify_ssl"
-                          checked={formData.config.verify_ssl || false}
-                          onChange={(e) => updateConfig('verify_ssl', e.target.checked)}
+                          id="insecure_skip_verify"
+                          checked={formData.config.insecure_skip_verify || false}
+                          onChange={(e) => updateConfig('insecure_skip_verify', e.target.checked)}
                         />
-                        <label htmlFor="verify_ssl" className="text-sm text-gray-700 dark:text-gray-300">
-                          Verify SSL Certificate
+                        <label htmlFor="insecure_skip_verify" className="text-sm text-gray-700 dark:text-gray-300">
+                          Skip TLS certificate verification (self-signed collector)
                         </label>
                       </div>
                     </>

@@ -1,10 +1,7 @@
 # Build stage
-FROM golang:1.21-alpine AS builder
+FROM golang:1.26-alpine@sha256:30b1e546a9c7fa3b747c2bdba3a0c7bdf3a02ebb4c5b8405d2f948d7e8aac4ec AS builder
 
 WORKDIR /app
-
-# Install git for fetching dependencies
-RUN apk add --no-cache git
 
 # Copy go mod files
 COPY backend/go.mod backend/go.sum ./
@@ -16,21 +13,25 @@ RUN go mod download
 COPY backend/ .
 COPY versions.json /versions.json
 
-# Build the application
+# Build a static, stripped binary with the version baked in
 RUN VERSION=$(sed -n 's/.*"backend": *"\([^"]*\)".*/\1/p' /versions.json) && \
     CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags "-s -w -X siem-event-generator/api/handlers.Version=${VERSION}" -o siem-event-generator .
 
 # Runtime stage
-FROM alpine:3.19
+FROM alpine:3.23@sha256:469c9ea410b9215eaee7976ba6c0639039b444be8e5d638f7abbada189971eb2
 
 WORKDIR /app
 
-# Add ca-certificates for HTTPS and create output directory
+# ca-certificates for HTTPS collectors; config and output directories owned by
+# the unprivileged runtime user (uid 1000, matching the compose "user:" line)
 RUN apk --no-cache add ca-certificates && \
-    mkdir -p /tmp/output /config
+    mkdir -p /tmp/output /config && \
+    chown -R 1000:1000 /tmp/output /config
 
 # Copy binary from builder
 COPY --from=builder /app/siem-event-generator .
+
+USER 1000:1000
 
 # Expose port
 EXPOSE 8080

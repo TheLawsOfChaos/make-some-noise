@@ -59,7 +59,7 @@ export interface DestinationConfig {
   index?: string;
   source?: string;
   sourcetype?: string;
-  verify_ssl?: boolean;
+  insecure_skip_verify?: boolean;
   batch_size?: number;
   // File
   file_path?: string;

@@ -17,7 +17,7 @@ type SyslogSender struct {
 
 // NewSyslogSender creates a new syslog sender
 func NewSyslogSender(config models.DestinationConfig, protocol string) (*SyslogSender, error) {
-	address := fmt.Sprintf("%s:%d", config.Host, config.Port)
+	address := net.JoinHostPort(config.Host, fmt.Sprintf("%d", config.Port))
 
 	var conn net.Conn
 	var err error
@@ -29,7 +29,7 @@ func NewSyslogSender(config models.DestinationConfig, protocol string) (*SyslogS
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to syslog server: %w", err)
+		return nil, fmt.Errorf("failed to connect to syslog server: %w", SafeError(err))
 	}
 
 	return &SyslogSender{

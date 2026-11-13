@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"siem-event-generator/delivery"
 	"siem-event-generator/models"
 )
 
@@ -27,7 +28,7 @@ func atomicWriteJSON(filePath string, v interface{}) error {
 		return fmt.Errorf("marshal: %w", err)
 	}
 	tmpPath := filePath + ".tmp"
-	if err := os.WriteFile(tmpPath, data, 0644); err != nil {
+	if err := os.WriteFile(tmpPath, data, 0600); err != nil {
 		return fmt.Errorf("write temp file: %w", err)
 	}
 	if err := os.Rename(tmpPath, filePath); err != nil {
@@ -78,7 +79,7 @@ func SeedDefaultDestinationIfEmpty() {
 		Type:        models.DestinationTypeFile,
 		Description: "Default file output destination",
 		Config: models.DestinationConfig{
-			FilePath:   "/tmp/output/siem-events.log",
+			FilePath:   filepath.Join(delivery.OutputRoot(), "siem-events.log"),
 			MaxSizeMB:  100,
 			RotateKeep: 5,
 		},
