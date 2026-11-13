@@ -97,7 +97,6 @@ func redactedList(ds []*models.Destination) []models.Destination {
 	return out
 }
 
-
 // ListDestinations returns all destinations
 func ListDestinations(c *gin.Context) {
 	destinations := destinationStore.List()
