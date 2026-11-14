@@ -272,7 +272,7 @@ func (g *WebAPIMetricsGenerator) generateHTTPStatus(overrides map[string]interfa
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
-	rawEvent, _ := json.MarshalIndent(metrics, "", "  ")
+	rawEvent, _ := json.Marshal(metrics)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -368,7 +368,7 @@ func (g *WebAPIMetricsGenerator) generateLatency(overrides map[string]interface{
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
-	rawEvent, _ := json.MarshalIndent(metrics, "", "  ")
+	rawEvent, _ := json.Marshal(metrics)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -456,7 +456,7 @@ func (g *WebAPIMetricsGenerator) generateThroughput(overrides map[string]interfa
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
-	rawEvent, _ := json.MarshalIndent(metrics, "", "  ")
+	rawEvent, _ := json.Marshal(metrics)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -545,7 +545,7 @@ func (g *WebAPIMetricsGenerator) generateBandwidth(overrides map[string]interfac
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
-	rawEvent, _ := json.MarshalIndent(metrics, "", "  ")
+	rawEvent, _ := json.Marshal(metrics)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -635,7 +635,7 @@ func (g *WebAPIMetricsGenerator) generateSSL(overrides map[string]interface{}) (
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
-	rawEvent, _ := json.MarshalIndent(metrics, "", "  ")
+	rawEvent, _ := json.Marshal(metrics)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -724,7 +724,7 @@ func (g *WebAPIMetricsGenerator) generateUpstream(overrides map[string]interface
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
-	rawEvent, _ := json.MarshalIndent(metrics, "", "  ")
+	rawEvent, _ := json.Marshal(metrics)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -832,7 +832,7 @@ func (g *WebAPIMetricsGenerator) generateCache(overrides map[string]interface{})
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
-	rawEvent, _ := json.MarshalIndent(metrics, "", "  ")
+	rawEvent, _ := json.Marshal(metrics)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),

@@ -229,13 +229,13 @@ func (g *AWSCloudTrailGenerator) generateConsoleLogin(overrides map[string]inter
 	}
 
 	event["additionalEventData"] = map[string]interface{}{
-		"LoginTo":          fmt.Sprintf("https://console.aws.amazon.com/console/home?region=%s", region),
-		"MobileVersion":    "No",
-		"MFAUsed":          g.RandomChoice([]string{"Yes", "No"}),
+		"LoginTo":       fmt.Sprintf("https://console.aws.amazon.com/console/home?region=%s", region),
+		"MobileVersion": "No",
+		"MFAUsed":       g.RandomChoice([]string{"Yes", "No"}),
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -281,7 +281,7 @@ func (g *AWSCloudTrailGenerator) generateAssumeRole(overrides map[string]interfa
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -325,7 +325,7 @@ func (g *AWSCloudTrailGenerator) generateCreateUser(overrides map[string]interfa
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -360,7 +360,7 @@ func (g *AWSCloudTrailGenerator) generateDeleteUser(overrides map[string]interfa
 	event["responseElements"] = nil
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -388,7 +388,7 @@ func (g *AWSCloudTrailGenerator) generatePutBucketPolicy(overrides map[string]in
 	}
 
 	event["requestParameters"] = map[string]interface{}{
-		"bucketName":   bucketName,
+		"bucketName": bucketName,
 		"bucketPolicy": map[string]interface{}{
 			"Version": "2012-10-17",
 			"Statement": []map[string]interface{}{
@@ -405,7 +405,7 @@ func (g *AWSCloudTrailGenerator) generatePutBucketPolicy(overrides map[string]in
 	event["responseElements"] = nil
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -452,13 +452,13 @@ func (g *AWSCloudTrailGenerator) generateAuthorizeSecurityGroupIngress(overrides
 	}
 
 	event["responseElements"] = map[string]interface{}{
-		"requestId":           uuid.New().String(),
-		"_return":             true,
+		"requestId":            uuid.New().String(),
+		"_return":              true,
 		"securityGroupRuleSet": map[string]interface{}{},
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -510,7 +510,7 @@ func (g *AWSCloudTrailGenerator) generateRunInstances(overrides map[string]inter
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -559,7 +559,7 @@ func (g *AWSCloudTrailGenerator) generateStopInstances(overrides map[string]inte
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -592,15 +592,15 @@ func (g *AWSCloudTrailGenerator) generateCreateAccessKey(overrides map[string]in
 
 	event["responseElements"] = map[string]interface{}{
 		"accessKey": map[string]interface{}{
-			"userName":        targetUser,
-			"accessKeyId":     "AKIA" + g.RandomString(16),
-			"status":          "Active",
-			"createDate":      timestamp.UTC().Format(time.RFC3339),
+			"userName":    targetUser,
+			"accessKeyId": "AKIA" + g.RandomString(16),
+			"status":      "Active",
+			"createDate":  timestamp.UTC().Format(time.RFC3339),
 		},
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -636,7 +636,7 @@ func (g *AWSCloudTrailGenerator) generateGetSecretValue(overrides map[string]int
 	event["readOnly"] = true
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),

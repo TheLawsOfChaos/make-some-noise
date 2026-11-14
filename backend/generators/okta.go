@@ -139,11 +139,11 @@ func (g *OktaGenerator) buildBaseEvent(eventType, displayMessage, outcome string
 	userID := "00u" + g.RandomString(17)
 
 	return map[string]interface{}{
-		"uuid":       uuid.New().String(),
-		"published":  timestamp.Format(time.RFC3339Nano),
-		"eventType":  eventType,
-		"version":    "0",
-		"severity":   g.RandomChoice([]string{"INFO", "WARN", "ERROR"}),
+		"uuid":            uuid.New().String(),
+		"published":       timestamp.Format(time.RFC3339Nano),
+		"eventType":       eventType,
+		"version":         "0",
+		"severity":        g.RandomChoice([]string{"INFO", "WARN", "ERROR"}),
 		"legacyEventType": eventType,
 		"displayMessage":  displayMessage,
 		"actor": map[string]interface{}{
@@ -158,10 +158,10 @@ func (g *OktaGenerator) buildBaseEvent(eventType, displayMessage, outcome string
 				"os":           "Windows 10",
 				"browser":      "Chrome",
 			},
-			"zone":            "null",
-			"device":          "Computer",
-			"id":              nil,
-			"ipAddress":       g.RandomIPv4External(),
+			"zone":      "null",
+			"device":    "Computer",
+			"id":        nil,
+			"ipAddress": g.RandomIPv4External(),
 			"geographicalContext": map[string]interface{}{
 				"city":       g.RandomChoice([]string{"New York", "San Francisco", "Chicago", "Austin", "Seattle"}),
 				"state":      g.RandomChoice([]string{"NY", "CA", "IL", "TX", "WA"}),
@@ -176,9 +176,9 @@ func (g *OktaGenerator) buildBaseEvent(eventType, displayMessage, outcome string
 		"outcome": map[string]interface{}{
 			"result": outcome,
 		},
-		"target":             []interface{}{},
-		"transaction":        map[string]interface{}{"type": "WEB", "id": g.RandomString(20)},
-		"debugContext":       map[string]interface{}{},
+		"target":       []interface{}{},
+		"transaction":  map[string]interface{}{"type": "WEB", "id": g.RandomString(20)},
+		"debugContext": map[string]interface{}{},
 		"authenticationContext": map[string]interface{}{
 			"authenticationStep": 0,
 			"externalSessionId":  g.RandomString(32),
@@ -202,7 +202,7 @@ func (g *OktaGenerator) generateSessionStart(overrides map[string]interface{}) (
 	event := g.buildBaseEvent("user.session.start", "User login to Okta", "SUCCESS")
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -231,7 +231,7 @@ func (g *OktaGenerator) generateSSOAuth(overrides map[string]interface{}) (*mode
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -260,7 +260,7 @@ func (g *OktaGenerator) generateMFAEnroll(overrides map[string]interface{}) (*mo
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -280,13 +280,13 @@ func (g *OktaGenerator) generateAccountLock(overrides map[string]interface{}) (*
 
 	event["debugContext"] = map[string]interface{}{
 		"debugData": map[string]interface{}{
-			"lockoutReason": "EXCESSIVE_FAILED_LOGINS",
+			"lockoutReason":  "EXCESSIVE_FAILED_LOGINS",
 			"failedAttempts": g.RandomInt(5, 10),
 		},
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -311,7 +311,7 @@ func (g *OktaGenerator) generateAuthFailure(overrides map[string]interface{}) (*
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -329,7 +329,7 @@ func (g *OktaGenerator) generatePasswordReset(overrides map[string]interface{}) 
 	event := g.buildBaseEvent("user.account.reset_password", "User password was reset", "SUCCESS")
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),

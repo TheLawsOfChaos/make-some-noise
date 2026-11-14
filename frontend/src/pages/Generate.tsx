@@ -12,6 +12,7 @@ import {
   getDestinations,
   generateEvents,
   previewEvent,
+  errorMessage,
 } from '../api/client';
 import type { EventType, EventTemplate, Destination, GeneratedEvent, GenerateResponse } from '../types';
 
@@ -91,12 +92,11 @@ export default function Generate() {
       });
       setResult(response);
     } catch (err) {
-      console.error('Generation failed:', err);
       setResult({
         success: false,
         events_created: 0,
         events_sent: 0,
-        errors: ['Failed to generate events'],
+        errors: [errorMessage(err, 'Failed to generate events')],
       });
     } finally {
       setLoading(false);

@@ -134,30 +134,30 @@ func (g *ZeekGenerator) generateConn(overrides map[string]interface{}) (*models.
 	duration := float64(g.RandomInt(1, 300)) + float64(g.RandomInt(0, 999999))/1000000
 
 	event := map[string]interface{}{
-		"ts":          timestamp.Unix(),
-		"uid":         uid,
-		"id.orig_h":   origIP,
-		"id.orig_p":   origPort,
-		"id.resp_h":   respIP,
-		"id.resp_p":   respPort,
-		"proto":       proto,
-		"service":     g.randomService(),
-		"duration":    duration,
-		"orig_bytes":  g.RandomInt(100, 100000),
-		"resp_bytes":  g.RandomInt(100, 1000000),
-		"conn_state":  g.randomConnState(),
-		"local_orig":  true,
-		"local_resp":  false,
-		"missed_bytes": 0,
-		"history":     g.RandomChoice([]string{"ShADadFf", "ShADadfF", "S", "ShR", "ShADadR"}),
-		"orig_pkts":   g.RandomInt(1, 100),
+		"ts":            timestamp.Unix(),
+		"uid":           uid,
+		"id.orig_h":     origIP,
+		"id.orig_p":     origPort,
+		"id.resp_h":     respIP,
+		"id.resp_p":     respPort,
+		"proto":         proto,
+		"service":       g.randomService(),
+		"duration":      duration,
+		"orig_bytes":    g.RandomInt(100, 100000),
+		"resp_bytes":    g.RandomInt(100, 1000000),
+		"conn_state":    g.randomConnState(),
+		"local_orig":    true,
+		"local_resp":    false,
+		"missed_bytes":  0,
+		"history":       g.RandomChoice([]string{"ShADadFf", "ShADadfF", "S", "ShR", "ShADadR"}),
+		"orig_pkts":     g.RandomInt(1, 100),
 		"orig_ip_bytes": g.RandomInt(100, 100000),
-		"resp_pkts":   g.RandomInt(1, 200),
+		"resp_pkts":     g.RandomInt(1, 200),
 		"resp_ip_bytes": g.RandomInt(100, 1000000),
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -182,34 +182,34 @@ func (g *ZeekGenerator) generateDNS(overrides map[string]interface{}) (*models.G
 	qtype := g.RandomChoice([]string{"A", "AAAA", "CNAME", "MX", "TXT", "NS", "SOA"})
 
 	event := map[string]interface{}{
-		"ts":        timestamp.Unix(),
-		"uid":       uid,
-		"id.orig_h": g.RandomIPv4Internal(),
-		"id.orig_p": g.RandomPort(),
-		"id.resp_h": g.RandomChoice([]string{"8.8.8.8", "1.1.1.1", "208.67.222.222"}),
-		"id.resp_p": 53,
-		"proto":     "udp",
-		"trans_id":  g.RandomInt(1, 65535),
-		"rtt":       float64(g.RandomInt(1, 100)) / 1000,
-		"query":     g.RandomChoice(domains),
-		"qclass":    1,
+		"ts":          timestamp.Unix(),
+		"uid":         uid,
+		"id.orig_h":   g.RandomIPv4Internal(),
+		"id.orig_p":   g.RandomPort(),
+		"id.resp_h":   g.RandomChoice([]string{"8.8.8.8", "1.1.1.1", "208.67.222.222"}),
+		"id.resp_p":   53,
+		"proto":       "udp",
+		"trans_id":    g.RandomInt(1, 65535),
+		"rtt":         float64(g.RandomInt(1, 100)) / 1000,
+		"query":       g.RandomChoice(domains),
+		"qclass":      1,
 		"qclass_name": "C_INTERNET",
-		"qtype":     qtype,
-		"qtype_name": qtype,
-		"rcode":     0,
-		"rcode_name": "NOERROR",
-		"AA":        false,
-		"TC":        false,
-		"RD":        true,
-		"RA":        true,
-		"Z":         0,
-		"answers":   []string{g.RandomIPv4External()},
-		"TTLs":      []int{g.RandomInt(60, 86400)},
-		"rejected":  false,
+		"qtype":       qtype,
+		"qtype_name":  qtype,
+		"rcode":       0,
+		"rcode_name":  "NOERROR",
+		"AA":          false,
+		"TC":          false,
+		"RD":          true,
+		"RA":          true,
+		"Z":           0,
+		"answers":     []string{g.RandomIPv4External()},
+		"TTLs":        []int{g.RandomInt(60, 86400)},
+		"rejected":    false,
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -238,33 +238,33 @@ func (g *ZeekGenerator) generateHTTP(overrides map[string]interface{}) (*models.
 	statusCodes := []int{200, 201, 204, 301, 302, 400, 401, 403, 404, 500}
 
 	event := map[string]interface{}{
-		"ts":               timestamp.Unix(),
-		"uid":              uid,
-		"id.orig_h":        g.RandomIPv4Internal(),
-		"id.orig_p":        g.RandomPort(),
-		"id.resp_h":        g.RandomIPv4External(),
-		"id.resp_p":        g.RandomChoice([]string{"80", "443", "8080", "8443"}),
-		"trans_depth":      1,
-		"method":           g.RandomChoice(methods),
-		"host":             g.RandomChoice(hosts),
-		"uri":              g.RandomChoice(uris),
-		"referrer":         "-",
-		"version":          "1.1",
-		"user_agent":       g.RandomChoice(userAgents),
-		"origin":           "-",
-		"request_body_len": g.RandomInt(0, 10000),
+		"ts":                timestamp.Unix(),
+		"uid":               uid,
+		"id.orig_h":         g.RandomIPv4Internal(),
+		"id.orig_p":         g.RandomPort(),
+		"id.resp_h":         g.RandomIPv4External(),
+		"id.resp_p":         g.RandomChoice([]string{"80", "443", "8080", "8443"}),
+		"trans_depth":       1,
+		"method":            g.RandomChoice(methods),
+		"host":              g.RandomChoice(hosts),
+		"uri":               g.RandomChoice(uris),
+		"referrer":          "-",
+		"version":           "1.1",
+		"user_agent":        g.RandomChoice(userAgents),
+		"origin":            "-",
+		"request_body_len":  g.RandomInt(0, 10000),
 		"response_body_len": g.RandomInt(0, 100000),
-		"status_code":      statusCodes[g.RandomInt(0, len(statusCodes)-1)],
-		"status_msg":       "OK",
-		"info_code":        "-",
-		"info_msg":         "-",
-		"tags":             []string{},
-		"resp_fuids":       []string{g.randomFUID()},
-		"resp_mime_types":  []string{g.RandomChoice([]string{"text/html", "application/json", "text/javascript", "image/png"})},
+		"status_code":       statusCodes[g.RandomInt(0, len(statusCodes)-1)],
+		"status_msg":        "OK",
+		"info_code":         "-",
+		"info_msg":          "-",
+		"tags":              []string{},
+		"resp_fuids":        []string{g.randomFUID()},
+		"resp_mime_types":   []string{g.RandomChoice([]string{"text/html", "application/json", "text/javascript", "image/png"})},
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -290,27 +290,27 @@ func (g *ZeekGenerator) generateSSL(overrides map[string]interface{}) (*models.G
 	}
 
 	event := map[string]interface{}{
-		"ts":             timestamp.Unix(),
-		"uid":            uid,
-		"id.orig_h":      g.RandomIPv4Internal(),
-		"id.orig_p":      g.RandomPort(),
-		"id.resp_h":      g.RandomIPv4External(),
-		"id.resp_p":      443,
-		"version":        g.RandomChoice(versions),
-		"cipher":         g.RandomChoice(ciphers),
-		"curve":          g.RandomChoice([]string{"x25519", "secp256r1", "secp384r1"}),
-		"server_name":    g.RandomChoice(serverNames),
-		"resumed":        g.RandomInt(0, 1) == 1,
-		"established":    true,
-		"cert_chain_fuids": []string{g.randomFUID()},
+		"ts":                      timestamp.Unix(),
+		"uid":                     uid,
+		"id.orig_h":               g.RandomIPv4Internal(),
+		"id.orig_p":               g.RandomPort(),
+		"id.resp_h":               g.RandomIPv4External(),
+		"id.resp_p":               443,
+		"version":                 g.RandomChoice(versions),
+		"cipher":                  g.RandomChoice(ciphers),
+		"curve":                   g.RandomChoice([]string{"x25519", "secp256r1", "secp384r1"}),
+		"server_name":             g.RandomChoice(serverNames),
+		"resumed":                 g.RandomInt(0, 1) == 1,
+		"established":             true,
+		"cert_chain_fuids":        []string{g.randomFUID()},
 		"client_cert_chain_fuids": []string{},
-		"subject":        fmt.Sprintf("CN=%s,O=Example Corp,L=San Francisco,ST=California,C=US", g.RandomChoice(serverNames)),
-		"issuer":         "CN=DigiCert TLS RSA SHA256 2020 CA1,O=DigiCert Inc,C=US",
-		"validation_status": "ok",
+		"subject":                 fmt.Sprintf("CN=%s,O=Example Corp,L=San Francisco,ST=California,C=US", g.RandomChoice(serverNames)),
+		"issuer":                  "CN=DigiCert TLS RSA SHA256 2020 CA1,O=DigiCert Inc,C=US",
+		"validation_status":       "ok",
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -334,30 +334,30 @@ func (g *ZeekGenerator) generateFiles(overrides map[string]interface{}) (*models
 	filenames := []string{"update.exe", "document.pdf", "archive.zip", "invoice.docx", "image.png", "script.js"}
 
 	event := map[string]interface{}{
-		"ts":          timestamp.Unix(),
-		"fuid":        fuid,
-		"tx_hosts":    []string{g.RandomIPv4External()},
-		"rx_hosts":    []string{g.RandomIPv4Internal()},
-		"conn_uids":   []string{g.randomUID()},
-		"source":      g.RandomChoice([]string{"HTTP", "FTP", "SMTP", "SMB"}),
-		"depth":       0,
-		"analyzers":   []string{g.RandomChoice([]string{"SHA256", "MD5", "PE", "EXTRACT"})},
-		"mime_type":   g.RandomChoice(mimeTypes),
-		"filename":    g.RandomChoice(filenames),
-		"duration":    float64(g.RandomInt(1, 60)),
-		"local_orig":  false,
-		"is_orig":     false,
-		"seen_bytes":  g.RandomInt(1000, 10000000),
-		"total_bytes": g.RandomInt(1000, 10000000),
-		"missing_bytes": 0,
+		"ts":             timestamp.Unix(),
+		"fuid":           fuid,
+		"tx_hosts":       []string{g.RandomIPv4External()},
+		"rx_hosts":       []string{g.RandomIPv4Internal()},
+		"conn_uids":      []string{g.randomUID()},
+		"source":         g.RandomChoice([]string{"HTTP", "FTP", "SMTP", "SMB"}),
+		"depth":          0,
+		"analyzers":      []string{g.RandomChoice([]string{"SHA256", "MD5", "PE", "EXTRACT"})},
+		"mime_type":      g.RandomChoice(mimeTypes),
+		"filename":       g.RandomChoice(filenames),
+		"duration":       float64(g.RandomInt(1, 60)),
+		"local_orig":     false,
+		"is_orig":        false,
+		"seen_bytes":     g.RandomInt(1000, 10000000),
+		"total_bytes":    g.RandomInt(1000, 10000000),
+		"missing_bytes":  0,
 		"overflow_bytes": 0,
-		"timedout":    false,
-		"sha256":      g.RandomString(64),
-		"md5":         g.RandomString(32),
+		"timedout":       false,
+		"sha256":         g.RandomHex(64),
+		"md5":            g.RandomHex(32),
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -388,31 +388,31 @@ func (g *ZeekGenerator) generateNotice(overrides map[string]interface{}) (*model
 	notice := notices[g.RandomInt(0, len(notices)-1)]
 
 	event := map[string]interface{}{
-		"ts":        timestamp.Unix(),
-		"uid":       uid,
-		"id.orig_h": g.RandomIPv4External(),
-		"id.orig_p": g.RandomPort(),
-		"id.resp_h": g.RandomIPv4Internal(),
-		"id.resp_p": g.RandomCommonPort(),
-		"fuid":      "-",
+		"ts":             timestamp.Unix(),
+		"uid":            uid,
+		"id.orig_h":      g.RandomIPv4External(),
+		"id.orig_p":      g.RandomPort(),
+		"id.resp_h":      g.RandomIPv4Internal(),
+		"id.resp_p":      g.RandomCommonPort(),
+		"fuid":           "-",
 		"file_mime_type": "-",
-		"file_desc": "-",
-		"proto":     "tcp",
-		"note":      notice.note,
-		"msg":       notice.msg,
-		"sub":       "",
-		"src":       g.RandomIPv4External(),
-		"dst":       g.RandomIPv4Internal(),
-		"p":         g.RandomCommonPort(),
-		"n":         "-",
-		"peer_descr": "bro",
-		"actions":   []string{g.RandomChoice([]string{"Notice::ACTION_LOG", "Notice::ACTION_ALARM", "Notice::ACTION_EMAIL"})},
-		"suppress_for": 3600,
-		"dropped":   false,
+		"file_desc":      "-",
+		"proto":          "tcp",
+		"note":           notice.note,
+		"msg":            notice.msg,
+		"sub":            "",
+		"src":            g.RandomIPv4External(),
+		"dst":            g.RandomIPv4Internal(),
+		"p":              g.RandomCommonPort(),
+		"n":              "-",
+		"peer_descr":     "bro",
+		"actions":        []string{g.RandomChoice([]string{"Notice::ACTION_LOG", "Notice::ACTION_ALARM", "Notice::ACTION_EMAIL"})},
+		"suppress_for":   3600,
+		"dropped":        false,
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),

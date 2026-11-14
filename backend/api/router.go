@@ -1,14 +1,39 @@
 package api
 
 import (
+	"crypto/subtle"
+	"net/http"
+	"os"
+	"strings"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	"siem-event-generator/api/handlers"
 )
 
+// bearerAuth requires "Authorization: Bearer <token>" on every route in the
+// group when token is non-empty. /api/health stays open for health checks.
+func bearerAuth(token string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if token == "" || c.Request.URL.Path == "/api/health" {
+			c.Next()
+			return
+		}
+		got := strings.TrimPrefix(c.GetHeader("Authorization"), "Bearer ")
+		if subtle.ConstantTimeCompare([]byte(got), []byte(token)) != 1 {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing or invalid API token"})
+			return
+		}
+		c.Next()
+	}
+}
+
 // SetupRouter configures and returns the Gin router
 func SetupRouter() *gin.Engine {
+	if os.Getenv("GIN_MODE") == "" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	router := gin.Default()
 
 	// Configure CORS
@@ -20,6 +45,7 @@ func SetupRouter() *gin.Engine {
 
 	// API routes
 	api := router.Group("/api")
+	api.Use(bearerAuth(os.Getenv("API_TOKEN")))
 	{
 		// Health check
 		api.GET("/health", handlers.HealthCheck)

@@ -7,6 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Version is set at build time with -ldflags "-X siem-event-generator/api/handlers.Version=x.y.z".
+var Version = "dev"
+
 var startTime = time.Now()
 
 // HealthResponse represents the health check response
@@ -23,7 +26,7 @@ func HealthCheck(c *gin.Context) {
 
 	response := HealthResponse{
 		Status:    "healthy",
-		Version:   "1.0.0",
+		Version:   Version,
 		Uptime:    uptime,
 		Timestamp: time.Now().UTC().Format(time.RFC3339),
 	}

@@ -17,6 +17,18 @@ import type {
   EventSourceTree,
 } from '../types';
 
+// errorMessage returns the backend's error text when there is one, so the UI
+// shows "destination not found: x" rather than "Request failed with status code 404".
+export const errorMessage = (err: unknown, fallback: string): string => {
+  if (axios.isAxiosError(err)) {
+    const data = err.response?.data as { error?: string } | undefined;
+    if (data?.error) return data.error;
+    if (err.response) return `${fallback} (HTTP ${err.response.status})`;
+    return `${fallback} (backend unreachable)`;
+  }
+  return err instanceof Error ? err.message : fallback;
+};
+
 const api = axios.create({
   baseURL: '/api',
   headers: {

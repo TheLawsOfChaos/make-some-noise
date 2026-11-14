@@ -78,9 +78,9 @@ func (g *WindowsSecurityGenerator) GetTemplates() []models.EventTemplate {
 
 // WindowsEvent represents a Windows Event Log structure
 type WindowsEvent struct {
-	XMLName xml.Name `xml:"Event"`
-	Xmlns   string   `xml:"xmlns,attr"`
-	System  WindowsEventSystem
+	XMLName   xml.Name `xml:"Event"`
+	Xmlns     string   `xml:"xmlns,attr"`
+	System    WindowsEventSystem
 	EventData WindowsEventData
 }
 
@@ -160,40 +160,40 @@ func (g *WindowsSecurityGenerator) generate4624(overrides map[string]interface{}
 	logonType := logonTypes[g.RandomInt(0, len(logonTypes)-1)]
 
 	fields := map[string]interface{}{
-		"SubjectUserSid":        g.RandomSID(),
-		"SubjectUserName":       g.RandomUsername(),
-		"SubjectDomainName":     g.RandomDomain(),
-		"SubjectLogonId":        fmt.Sprintf("0x%x", g.RandomInt(100000, 9999999)),
-		"TargetUserSid":         g.RandomSID(),
-		"TargetUserName":        g.RandomUsername(),
-		"TargetDomainName":      g.RandomDomain(),
-		"TargetLogonId":         fmt.Sprintf("0x%x", g.RandomInt(100000, 9999999)),
-		"LogonType":             logonType,
-		"LogonProcessName":      "NtLmSsp",
+		"SubjectUserSid":            g.RandomSID(),
+		"SubjectUserName":           g.RandomUsername(),
+		"SubjectDomainName":         g.RandomDomain(),
+		"SubjectLogonId":            fmt.Sprintf("0x%x", g.RandomInt(100000, 9999999)),
+		"TargetUserSid":             g.RandomSID(),
+		"TargetUserName":            g.RandomUsername(),
+		"TargetDomainName":          g.RandomDomain(),
+		"TargetLogonId":             fmt.Sprintf("0x%x", g.RandomInt(100000, 9999999)),
+		"LogonType":                 logonType,
+		"LogonProcessName":          "NtLmSsp",
 		"AuthenticationPackageName": "NTLM",
-		"WorkstationName":       g.RandomHostname(),
-		"LogonGuid":             g.RandomGUID(),
-		"TransmittedServices":   "-",
-		"LmPackageName":         "NTLM V2",
-		"KeyLength":             128,
-		"ProcessId":             g.RandomInt(4, 65535),
-		"ProcessName":           "C:\\Windows\\System32\\lsass.exe",
-		"IpAddress":             g.RandomIPv4Internal(),
-		"IpPort":                g.RandomPort(),
-		"ImpersonationLevel":    "%%1833",
-		"RestrictedAdminMode":   "-",
-		"TargetOutboundUserName": "-",
-		"TargetOutboundDomainName": "-",
-		"VirtualAccount":        "%%1843",
-		"TargetLinkedLogonId":   "0x0",
-		"ElevatedToken":         "%%1842",
+		"WorkstationName":           g.RandomHostname(),
+		"LogonGuid":                 g.RandomGUID(),
+		"TransmittedServices":       "-",
+		"LmPackageName":             "NTLM V2",
+		"KeyLength":                 128,
+		"ProcessId":                 g.RandomInt(4, 65535),
+		"ProcessName":               "C:\\Windows\\System32\\lsass.exe",
+		"IpAddress":                 g.RandomIPv4Internal(),
+		"IpPort":                    g.RandomPort(),
+		"ImpersonationLevel":        "%%1833",
+		"RestrictedAdminMode":       "-",
+		"TargetOutboundUserName":    "-",
+		"TargetOutboundDomainName":  "-",
+		"VirtualAccount":            "%%1843",
+		"TargetLinkedLogonId":       "0x0",
+		"ElevatedToken":             "%%1842",
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
 	computer := g.RandomFQDN()
 	event := g.buildEvent(4624, 12544, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -217,34 +217,34 @@ func (g *WindowsSecurityGenerator) generate4625(overrides map[string]interface{}
 	statuses := []string{"0xc000006d", "0xc000006a", "0xc0000234", "0xc0000072"}
 
 	fields := map[string]interface{}{
-		"SubjectUserSid":         "S-1-0-0",
-		"SubjectUserName":        "-",
-		"SubjectDomainName":      "-",
-		"SubjectLogonId":         "0x0",
-		"TargetUserSid":          "S-1-0-0",
-		"TargetUserName":         g.RandomUsername(),
-		"TargetDomainName":       g.RandomDomain(),
-		"Status":                 g.RandomChoice(statuses),
-		"FailureReason":          g.RandomChoice(failureReasons),
-		"SubStatus":              "0x0",
-		"LogonType":              g.RandomInt(2, 11),
-		"LogonProcessName":       "NtLmSsp",
+		"SubjectUserSid":            "S-1-0-0",
+		"SubjectUserName":           "-",
+		"SubjectDomainName":         "-",
+		"SubjectLogonId":            "0x0",
+		"TargetUserSid":             "S-1-0-0",
+		"TargetUserName":            g.RandomUsername(),
+		"TargetDomainName":          g.RandomDomain(),
+		"Status":                    g.RandomChoice(statuses),
+		"FailureReason":             g.RandomChoice(failureReasons),
+		"SubStatus":                 "0x0",
+		"LogonType":                 g.RandomInt(2, 11),
+		"LogonProcessName":          "NtLmSsp",
 		"AuthenticationPackageName": "NTLM",
-		"WorkstationName":        g.RandomHostname(),
-		"TransmittedServices":    "-",
-		"LmPackageName":          "-",
-		"KeyLength":              0,
-		"ProcessId":              0,
-		"ProcessName":            "-",
-		"IpAddress":              g.RandomIPv4External(),
-		"IpPort":                 g.RandomPort(),
+		"WorkstationName":           g.RandomHostname(),
+		"TransmittedServices":       "-",
+		"LmPackageName":             "-",
+		"KeyLength":                 0,
+		"ProcessId":                 0,
+		"ProcessName":               "-",
+		"IpAddress":                 g.RandomIPv4External(),
+		"IpPort":                    g.RandomPort(),
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
 	computer := g.RandomFQDN()
 	event := g.buildEvent(4625, 12544, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -287,7 +287,7 @@ func (g *WindowsSecurityGenerator) generate4688(overrides map[string]interface{}
 
 	computer := g.RandomFQDN()
 	event := g.buildEvent(4688, 13312, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -331,18 +331,18 @@ func (g *WindowsSecurityGenerator) generate4672(overrides map[string]interface{}
 	}
 
 	fields := map[string]interface{}{
-		"SubjectUserSid":   g.RandomSID(),
-		"SubjectUserName":  g.RandomUsername(),
+		"SubjectUserSid":    g.RandomSID(),
+		"SubjectUserName":   g.RandomUsername(),
 		"SubjectDomainName": g.RandomDomain(),
-		"SubjectLogonId":   fmt.Sprintf("0x%x", g.RandomInt(100000, 9999999)),
-		"PrivilegeList":    selectedPrivs,
+		"SubjectLogonId":    fmt.Sprintf("0x%x", g.RandomInt(100000, 9999999)),
+		"PrivilegeList":     selectedPrivs,
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
 	computer := g.RandomFQDN()
 	event := g.buildEvent(4672, 12548, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -365,39 +365,39 @@ func (g *WindowsSecurityGenerator) generate4720(overrides map[string]interface{}
 	newUser := g.RandomUsername()
 
 	fields := map[string]interface{}{
-		"TargetUserName":     newUser,
-		"TargetDomainName":   g.RandomDomain(),
-		"TargetSid":          g.RandomSID(),
-		"SubjectUserSid":     g.RandomSID(),
-		"SubjectUserName":    g.RandomUsername(),
-		"SubjectDomainName":  g.RandomDomain(),
-		"SubjectLogonId":     fmt.Sprintf("0x%x", g.RandomInt(100000, 9999999)),
-		"PrivilegeList":      "-",
-		"SamAccountName":     newUser,
-		"DisplayName":        newUser,
-		"UserPrincipalName":  fmt.Sprintf("%s@%s.local", newUser, g.RandomDomain()),
-		"HomeDirectory":      "-",
-		"HomePath":           "-",
-		"ScriptPath":         "-",
-		"ProfilePath":        "-",
-		"UserWorkstations":   "-",
-		"PasswordLastSet":    now.Format("1/2/2006 3:04:05 PM"),
-		"AccountExpires":     "%%1794",
-		"PrimaryGroupId":     "513",
+		"TargetUserName":      newUser,
+		"TargetDomainName":    g.RandomDomain(),
+		"TargetSid":           g.RandomSID(),
+		"SubjectUserSid":      g.RandomSID(),
+		"SubjectUserName":     g.RandomUsername(),
+		"SubjectDomainName":   g.RandomDomain(),
+		"SubjectLogonId":      fmt.Sprintf("0x%x", g.RandomInt(100000, 9999999)),
+		"PrivilegeList":       "-",
+		"SamAccountName":      newUser,
+		"DisplayName":         newUser,
+		"UserPrincipalName":   fmt.Sprintf("%s@%s.local", newUser, g.RandomDomain()),
+		"HomeDirectory":       "-",
+		"HomePath":            "-",
+		"ScriptPath":          "-",
+		"ProfilePath":         "-",
+		"UserWorkstations":    "-",
+		"PasswordLastSet":     now.Format("1/2/2006 3:04:05 PM"),
+		"AccountExpires":      "%%1794",
+		"PrimaryGroupId":      "513",
 		"AllowedToDelegateTo": "-",
-		"OldUacValue":        "0x0",
-		"NewUacValue":        "0x15",
-		"UserAccountControl": "%%2080\n\t\t%%2082\n\t\t%%2084",
-		"UserParameters":     "-",
-		"SidHistory":         "-",
-		"LogonHours":         "%%1793",
+		"OldUacValue":         "0x0",
+		"NewUacValue":         "0x15",
+		"UserAccountControl":  "%%2080\n\t\t%%2082\n\t\t%%2084",
+		"UserParameters":      "-",
+		"SidHistory":          "-",
+		"LogonHours":          "%%1793",
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
 	computer := g.RandomFQDN()
 	event := g.buildEvent(4720, 13824, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}

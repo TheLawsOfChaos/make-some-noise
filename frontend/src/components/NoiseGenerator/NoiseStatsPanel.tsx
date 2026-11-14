@@ -99,6 +99,12 @@ export default function NoiseStatsPanel({ stats }: Props) {
           icon={<ExclamationTriangleIcon />}
           variant={stats.total_errors > 0 ? 'error' : 'default'}
         />
+        <StatCard
+          label="Dropped"
+          value={formatNumber(stats.total_dropped || 0)}
+          icon={<ExclamationTriangleIcon />}
+          variant={stats.total_dropped > 0 ? 'error' : 'default'}
+        />
       </div>
 
       {/* Breakdown by Event Type */}

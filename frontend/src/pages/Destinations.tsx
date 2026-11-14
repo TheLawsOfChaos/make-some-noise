@@ -13,6 +13,7 @@ import {
   updateDestination,
   deleteDestination,
   testDestination,
+  errorMessage,
 } from '../api/client';
 import type { Destination, DestinationType, DestinationConfig } from '../types';
 
@@ -47,6 +48,7 @@ export default function Destinations() {
   const [formData, setFormData] = useState<DestinationFormData>(defaultFormData);
   const [testResults, setTestResults] = useState<Record<string, { success: boolean; message: string }>>({});
   const [testingId, setTestingId] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const fetchDestinations = async () => {
     try {
@@ -83,6 +85,7 @@ export default function Destinations() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
     try {
       if (editingId) {
         await updateDestination(editingId, formData);
@@ -94,7 +97,7 @@ export default function Destinations() {
       setEditingId(null);
       setFormData(defaultFormData);
     } catch (err) {
-      console.error('Failed to save destination:', err);
+      setFormError(errorMessage(err, 'Failed to save destination'));
     }
   };
 
@@ -160,6 +163,9 @@ export default function Destinations() {
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
                   {editingId ? 'Edit Destination' : 'New Destination'}
                 </h2>
+                {formError && (
+                  <p className="mb-4 text-sm text-red-600 dark:text-red-400">{formError}</p>
+                )}
 
                 <div className="space-y-4">
                   <div>
@@ -264,7 +270,8 @@ export default function Destinations() {
                           className="input"
                           value={formData.config.token || ''}
                           onChange={(e) => updateConfig('token', e.target.value)}
-                          required
+                          placeholder={editingId ? 'leave as is to keep the stored token' : ''}
+                          required={!editingId}
                         />
                       </div>
                       <div>
@@ -279,12 +286,12 @@ export default function Destinations() {
                       <div className="flex items-center gap-2">
                         <input
                           type="checkbox"
-                          id="verify_ssl"
-                          checked={formData.config.verify_ssl || false}
-                          onChange={(e) => updateConfig('verify_ssl', e.target.checked)}
+                          id="insecure_skip_verify"
+                          checked={formData.config.insecure_skip_verify || false}
+                          onChange={(e) => updateConfig('insecure_skip_verify', e.target.checked)}
                         />
-                        <label htmlFor="verify_ssl" className="text-sm text-gray-700 dark:text-gray-300">
-                          Verify SSL Certificate
+                        <label htmlFor="insecure_skip_verify" className="text-sm text-gray-700 dark:text-gray-300">
+                          Skip TLS certificate verification (self-signed collector)
                         </label>
                       </div>
                     </>

@@ -14,15 +14,15 @@ const (
 
 // Destination represents a target for sending generated events
 type Destination struct {
-	ID          string          `json:"id"`
-	Name        string          `json:"name" binding:"required"`
-	Type        DestinationType `json:"type" binding:"required"`
-	Description string          `json:"description,omitempty"`
+	ID          string            `json:"id"`
+	Name        string            `json:"name" binding:"required"`
+	Type        DestinationType   `json:"type" binding:"required"`
+	Description string            `json:"description,omitempty"`
 	Config      DestinationConfig `json:"config" binding:"required"`
-	CreatedAt   time.Time       `json:"created_at"`
-	UpdatedAt   time.Time       `json:"updated_at"`
-	LastUsed    *time.Time      `json:"last_used,omitempty"`
-	EventsSent  int64           `json:"events_sent"`
+	CreatedAt   time.Time         `json:"created_at"`
+	UpdatedAt   time.Time         `json:"updated_at"`
+	LastUsed    *time.Time        `json:"last_used,omitempty"`
+	EventsSent  int64             `json:"events_sent"`
 }
 
 // DestinationConfig holds configuration specific to each destination type
@@ -30,18 +30,22 @@ type DestinationConfig struct {
 	// Syslog configuration
 	Host     string `json:"host,omitempty"`
 	Port     int    `json:"port,omitempty"`
-	Facility int    `json:"facility,omitempty"` // 0-23
-	Severity int    `json:"severity,omitempty"` // 0-7
+	Facility *int   `json:"facility,omitempty"` // 0-23, default 1 (user)
+	Severity *int   `json:"severity,omitempty"` // 0-7, default 6 (informational)
 	Format   string `json:"format,omitempty"`   // rfc3164, rfc5424
 
 	// HEC configuration
-	URL         string `json:"url,omitempty"`
-	Token       string `json:"token,omitempty"`
-	Index       string `json:"index,omitempty"`
-	Source      string `json:"source,omitempty"`
-	Sourcetype  string `json:"sourcetype,omitempty"`
-	VerifySSL   bool   `json:"verify_ssl,omitempty"`
-	BatchSize   int    `json:"batch_size,omitempty"`
+	URL        string `json:"url,omitempty"`
+	Token      string `json:"token,omitempty"`
+	Index      string `json:"index,omitempty"`
+	Source     string `json:"source,omitempty"`
+	Sourcetype string `json:"sourcetype,omitempty"`
+	// InsecureSkipVerify disables TLS certificate verification. The old
+	// verify_ssl field defaulted to false (no verification); the default is
+	// now to verify, and an explicit insecure_skip_verify: true is needed for
+	// self-signed collectors.
+	InsecureSkipVerify bool `json:"insecure_skip_verify,omitempty"`
+	BatchSize          int  `json:"batch_size,omitempty"`
 
 	// File configuration
 	FilePath   string `json:"file_path,omitempty"`
@@ -57,16 +61,16 @@ type TestConnectionRequest struct {
 
 // TestConnectionResponse represents the result of a connection test
 type TestConnectionResponse struct {
-	Success     bool   `json:"success"`
-	Message     string `json:"message"`
-	LatencyMs   int64  `json:"latency_ms,omitempty"`
-	Error       string `json:"error,omitempty"`
+	Success   bool   `json:"success"`
+	Message   string `json:"message"`
+	LatencyMs int64  `json:"latency_ms,omitempty"`
+	Error     string `json:"error,omitempty"`
 }
 
 // DestinationStats represents statistics for a destination
 type DestinationStats struct {
-	TotalEventsSent   int64     `json:"total_events_sent"`
-	LastEventSentAt   *time.Time `json:"last_event_sent_at,omitempty"`
-	FailedEvents      int64     `json:"failed_events"`
-	AvgLatencyMs      float64   `json:"avg_latency_ms"`
+	TotalEventsSent int64      `json:"total_events_sent"`
+	LastEventSentAt *time.Time `json:"last_event_sent_at,omitempty"`
+	FailedEvents    int64      `json:"failed_events"`
+	AvgLatencyMs    float64    `json:"avg_latency_ms"`
 }

@@ -134,19 +134,19 @@ func (g *O365AuditGenerator) buildBaseEvent(operation, workload, recordType stri
 	_, userEmail := g.randomUser()
 
 	return map[string]interface{}{
-		"CreationTime":        timestamp.Format("2006-01-02T15:04:05"),
-		"Id":                  uuid.New().String(),
-		"Operation":           operation,
-		"OrganizationId":      g.randomTenantID(),
-		"RecordType":          recordType,
-		"ResultStatus":        "Succeeded",
-		"UserKey":             uuid.New().String(),
-		"UserType":            0,
-		"Version":             1,
-		"Workload":            workload,
-		"ClientIP":            g.RandomIPv4External(),
-		"UserId":              userEmail,
-		"UserAgent":           g.RandomChoice([]string{"Mozilla/5.0", "Microsoft Office/16.0", "OneDrive/21.0"}),
+		"CreationTime":   timestamp.Format("2006-01-02T15:04:05"),
+		"Id":             uuid.New().String(),
+		"Operation":      operation,
+		"OrganizationId": g.randomTenantID(),
+		"RecordType":     recordType,
+		"ResultStatus":   "Succeeded",
+		"UserKey":        uuid.New().String(),
+		"UserType":       0,
+		"Version":        1,
+		"Workload":       workload,
+		"ClientIP":       g.RandomIPv4External(),
+		"UserId":         userEmail,
+		"UserAgent":      g.RandomChoice([]string{"Mozilla/5.0", "Microsoft Office/16.0", "OneDrive/21.0"}),
 	}
 }
 
@@ -166,7 +166,7 @@ func (g *O365AuditGenerator) generateFileAccessed(overrides map[string]interface
 	event["EventSource"] = "SharePoint"
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -196,7 +196,7 @@ func (g *O365AuditGenerator) generateFileModified(overrides map[string]interface
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -223,7 +223,7 @@ func (g *O365AuditGenerator) generateFileDeleted(overrides map[string]interface{
 	event["EventSource"] = "SharePoint"
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -259,7 +259,7 @@ func (g *O365AuditGenerator) generateUserLogin(overrides map[string]interface{})
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -294,7 +294,7 @@ func (g *O365AuditGenerator) generateMailAccessed(overrides map[string]interface
 	event["SessionId"] = uuid.New().String()
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -324,14 +324,14 @@ func (g *O365AuditGenerator) generateTeamCreated(overrides map[string]interface{
 		{"UPN": event["UserId"], "Role": "Owner"},
 	}
 	event["Settings"] = map[string]interface{}{
-		"AllowGiphy":            true,
-		"AllowMemberAdd":        true,
-		"AllowGuestAccess":      g.RandomInt(0, 1) == 1,
-		"AllowChannelCreation":  true,
+		"AllowGiphy":           true,
+		"AllowMemberAdd":       true,
+		"AllowGuestAccess":     g.RandomInt(0, 1) == 1,
+		"AllowChannelCreation": true,
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),

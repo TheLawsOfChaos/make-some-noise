@@ -11,6 +11,7 @@ import {
   getNoiseStatus,
   startNoise,
   stopNoise,
+  errorMessage,
 } from '../api/client';
 import type {
   EventSourceTree,
@@ -241,8 +242,7 @@ export default function NoiseGenerator() {
 
       setNoiseStatus(response.status);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to start noise generation';
-      setError(errorMessage);
+      setError(errorMessage(err, 'Failed to start noise generation'));
     } finally {
       setLoading(false);
     }
@@ -256,8 +256,7 @@ export default function NoiseGenerator() {
       const response = await stopNoise();
       setNoiseStatus(response.status);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to stop noise generation';
-      setError(errorMessage);
+      setError(errorMessage(err, 'Failed to stop noise generation'));
     } finally {
       setLoading(false);
     }
@@ -415,7 +414,21 @@ export default function NoiseGenerator() {
 
           {/* Stats Panel (only when running or has data) */}
           {noiseStatus && (noiseStatus.running || noiseStatus.stats.total_generated > 0) && (
+            <>
+            {noiseStatus.skipped_sources && noiseStatus.skipped_sources.length > 0 && (
+              <div className="mb-4 rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-sm text-yellow-800 dark:border-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-200">
+                <p className="font-medium">Sources skipped by this run</p>
+                <ul className="mt-1 list-disc pl-5">
+                  {noiseStatus.skipped_sources.map((s) => (
+                    <li key={s.event_type_id + s.reason}>
+                      {s.event_type_id}: {s.reason}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <NoiseStatsPanel stats={noiseStatus.stats} />
+            </>
           )}
         </div>
       </div>

@@ -22,6 +22,12 @@ func NewFileSender(config models.DestinationConfig) (*FileSender, error) {
 		return nil, fmt.Errorf("file path is required")
 	}
 
+	path, err := ResolveOutputPath(config.FilePath)
+	if err != nil {
+		return nil, err
+	}
+	config.FilePath = path
+
 	// Ensure directory exists
 	dir := filepath.Dir(config.FilePath)
 	if err := os.MkdirAll(dir, 0755); err != nil {

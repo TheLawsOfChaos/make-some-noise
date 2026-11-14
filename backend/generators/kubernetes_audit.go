@@ -156,8 +156,8 @@ func (g *KubernetesAuditGenerator) buildBaseEvent(verb, resource, apiVersion str
 			"username": userName,
 			"groups":   groups,
 		},
-		"sourceIPs":               []string{g.RandomIPv4Internal()},
-		"userAgent":               g.RandomChoice([]string{"kubectl/v1.28.0", "kube-scheduler/v1.28.0", "argocd/v2.8.0", "helm/v3.12.0"}),
+		"sourceIPs": []string{g.RandomIPv4Internal()},
+		"userAgent": g.RandomChoice([]string{"kubectl/v1.28.0", "kube-scheduler/v1.28.0", "argocd/v2.8.0", "helm/v3.12.0"}),
 		"objectRef": map[string]interface{}{
 			"resource":   resource,
 			"namespace":  namespace,
@@ -202,7 +202,7 @@ func (g *KubernetesAuditGenerator) generatePodCreate(overrides map[string]interf
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -223,7 +223,7 @@ func (g *KubernetesAuditGenerator) generatePodDelete(overrides map[string]interf
 	event["objectRef"].(map[string]interface{})["name"] = podName
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -247,7 +247,7 @@ func (g *KubernetesAuditGenerator) generateSecretAccess(overrides map[string]int
 	event["level"] = "RequestResponse"
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -275,7 +275,7 @@ func (g *KubernetesAuditGenerator) generateExecContainer(overrides map[string]in
 	event["level"] = "RequestResponse"
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -307,7 +307,7 @@ func (g *KubernetesAuditGenerator) generateConfigMapUpdate(overrides map[string]
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -335,7 +335,7 @@ func (g *KubernetesAuditGenerator) generateRBACChange(overrides map[string]inter
 	event["level"] = "RequestResponse"
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),

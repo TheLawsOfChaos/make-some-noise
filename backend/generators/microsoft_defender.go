@@ -114,11 +114,11 @@ func (g *MicrosoftDefenderGenerator) randomDeviceName() string {
 }
 
 func (g *MicrosoftDefenderGenerator) randomSHA256() string {
-	return g.RandomString(64)
+	return g.RandomHex(64)
 }
 
 func (g *MicrosoftDefenderGenerator) randomSHA1() string {
-	return g.RandomString(40)
+	return g.RandomHex(40)
 }
 
 func (g *MicrosoftDefenderGenerator) buildBaseEvent(actionType string) map[string]interface{} {
@@ -126,16 +126,16 @@ func (g *MicrosoftDefenderGenerator) buildBaseEvent(actionType string) map[strin
 	deviceName := g.randomDeviceName()
 
 	return map[string]interface{}{
-		"Timestamp":       timestamp.Format(time.RFC3339),
-		"DeviceId":        g.randomDeviceID(),
-		"DeviceName":      deviceName,
-		"ActionType":      actionType,
-		"ReportId":        g.RandomInt(100000000, 999999999),
-		"MachineGroup":    g.RandomChoice([]string{"Standard", "High-Value", "Servers", "Domain Controllers"}),
-		"LocalIP":         g.RandomIPv4Internal(),
-		"PublicIP":        g.RandomIPv4External(),
-		"OSPlatform":      g.RandomChoice([]string{"Windows10", "Windows11", "WindowsServer2019", "WindowsServer2022"}),
-		"OSBuild":         fmt.Sprintf("19045.%d", g.RandomInt(1000, 9999)),
+		"Timestamp":    timestamp.Format(time.RFC3339),
+		"DeviceId":     g.randomDeviceID(),
+		"DeviceName":   deviceName,
+		"ActionType":   actionType,
+		"ReportId":     g.RandomInt(100000000, 999999999),
+		"MachineGroup": g.RandomChoice([]string{"Standard", "High-Value", "Servers", "Domain Controllers"}),
+		"LocalIP":      g.RandomIPv4Internal(),
+		"PublicIP":     g.RandomIPv4External(),
+		"OSPlatform":   g.RandomChoice([]string{"Windows10", "Windows11", "WindowsServer2019", "WindowsServer2022"}),
+		"OSBuild":      fmt.Sprintf("19045.%d", g.RandomInt(1000, 9999)),
 	}
 }
 
@@ -167,7 +167,7 @@ func (g *MicrosoftDefenderGenerator) generateAlert(overrides map[string]interfac
 	event["AccountDomain"] = g.RandomDomain()
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -201,7 +201,7 @@ func (g *MicrosoftDefenderGenerator) generateProcessCreation(overrides map[strin
 	event["LogonId"] = g.RandomInt(100000, 999999)
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -229,7 +229,7 @@ func (g *MicrosoftDefenderGenerator) generateNetworkConnection(overrides map[str
 	event["InitiatingProcessAccountName"] = g.RandomUsername()
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -261,7 +261,7 @@ func (g *MicrosoftDefenderGenerator) generateFileCreation(overrides map[string]i
 	event["InitiatingProcessAccountDomain"] = g.RandomDomain()
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -290,7 +290,7 @@ func (g *MicrosoftDefenderGenerator) generateLogonEvent(overrides map[string]int
 	event["RemoteDeviceName"] = g.randomDeviceName()
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -328,7 +328,7 @@ func (g *MicrosoftDefenderGenerator) generateMalwareDetection(overrides map[stri
 	event["AccountName"] = g.RandomUsername()
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),

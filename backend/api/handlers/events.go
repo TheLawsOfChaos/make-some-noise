@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -110,7 +111,14 @@ func GenerateEvents(c *gin.Context) {
 			if err != nil {
 				errors = append(errors, "Failed to create sender: "+err.Error())
 			} else {
-				for _, event := range events {
+				var pause time.Duration
+				if req.RatePerSecond > 0 {
+					pause = time.Second / time.Duration(req.RatePerSecond)
+				}
+				for i, event := range events {
+					if i > 0 && pause > 0 {
+						time.Sleep(pause)
+					}
 					if err := sender.Send(event); err != nil {
 						errors = append(errors, "Send error: "+err.Error())
 					} else {

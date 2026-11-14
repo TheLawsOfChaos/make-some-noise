@@ -80,6 +80,6 @@ type PreviewRequest struct {
 
 // EventTypeSchema represents the schema for a specific event type
 type EventTypeSchema struct {
-	EventType EventType     `json:"event_type"`
+	EventType EventType       `json:"event_type"`
 	Templates []EventTemplate `json:"templates"`
 }

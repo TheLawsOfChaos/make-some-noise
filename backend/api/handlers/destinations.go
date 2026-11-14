@@ -76,12 +76,32 @@ func (s *DestinationStore) Delete(id string) bool {
 // Global destination store (in production, use a database)
 var destinationStore = NewDestinationStore()
 
+// tokenMask is what the API returns in place of a stored HEC token. Sending
+// it back on an update keeps the stored token.
+const tokenMask = "********"
+
+// redacted returns a copy of the destination with its secret masked.
+func redacted(d *models.Destination) models.Destination {
+	out := *d
+	if out.Config.Token != "" {
+		out.Config.Token = tokenMask
+	}
+	return out
+}
+
+func redactedList(ds []*models.Destination) []models.Destination {
+	out := make([]models.Destination, 0, len(ds))
+	for _, d := range ds {
+		out = append(out, redacted(d))
+	}
+	return out
+}
 
 // ListDestinations returns all destinations
 func ListDestinations(c *gin.Context) {
 	destinations := destinationStore.List()
 	c.JSON(http.StatusOK, gin.H{
-		"destinations": destinations,
+		"destinations": redactedList(destinations),
 		"count":        len(destinations),
 	})
 }
@@ -98,7 +118,7 @@ func GetDestination(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dest)
+	c.JSON(http.StatusOK, redacted(dest))
 }
 
 // CreateDestination creates a new destination
@@ -115,10 +135,15 @@ func CreateDestination(c *gin.Context) {
 	dest.CreatedAt = time.Now()
 	dest.UpdatedAt = time.Now()
 
+	if dest.Config.Token == tokenMask {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "token must be the real token, not the mask"})
+		return
+	}
+
 	destinationStore.Create(&dest)
 	SaveDestinations()
 
-	c.JSON(http.StatusCreated, dest)
+	c.JSON(http.StatusCreated, redacted(&dest))
 }
 
 // UpdateDestination updates an existing destination
@@ -145,11 +170,14 @@ func UpdateDestination(c *gin.Context) {
 	dest.CreatedAt = existing.CreatedAt
 	dest.UpdatedAt = time.Now()
 	dest.EventsSent = existing.EventsSent
+	if dest.Config.Token == tokenMask || (dest.Config.Token == "" && dest.Type == models.DestinationTypeHEC) {
+		dest.Config.Token = existing.Config.Token
+	}
 
 	destinationStore.Update(&dest)
 	SaveDestinations()
 
-	c.JSON(http.StatusOK, dest)
+	c.JSON(http.StatusOK, redacted(&dest))
 }
 
 // DeleteDestination removes a destination

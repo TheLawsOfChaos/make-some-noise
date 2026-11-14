@@ -10,4 +10,4 @@ CLAUDE.md
 .claude/
 config/
 frontend/test-results/
-frontend/tests/screenshots/
+frontend/tests/screenshots/backend/siem-event-generator

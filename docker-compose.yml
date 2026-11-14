@@ -1,19 +1,31 @@
-version: '3.8'
-
 services:
   backend:
     build:
       context: .
       dockerfile: Dockerfile.backend
     container_name: makesomenoise-backend
+    # Bound to the loopback interface: the API has no authentication unless
+    # API_TOKEN is set. To reach it from other hosts, set API_TOKEN and change
+    # the binding to "8081:8080".
     ports:
-      - "8081:8080"
+      - "127.0.0.1:8081:8080"
     environment:
       - PORT=8080
       - CONFIG_DIR=/config
+      - OUTPUT_DIR=/tmp/output
+      - API_TOKEN=${API_TOKEN:-}
+    # The image runs as uid 1000; the bind mounts below must be writable by it
+    # (chown -R 1000:1000 ./config ./output, or change this to your uid).
+    user: "1000:1000"
     volumes:
       - ./output:/tmp/output
       - ./config:/config
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 512m
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/health"]
@@ -28,11 +40,19 @@ services:
       dockerfile: Dockerfile.frontend
     container_name: makesomenoise-frontend
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
+    environment:
+      - API_TOKEN=${API_TOKEN:-}
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /etc/nginx/conf.d
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 128m
     depends_on:
       backend:
         condition: service_healthy
     restart: unless-stopped
-
-volumes:
-  output:

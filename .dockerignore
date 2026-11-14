@@ -1,0 +1,14 @@
+.git
+.github
+.claude
+**/node_modules
+**/dist
+frontend/test-results
+frontend/tests/screenshots
+output
+config
+backend/siem-event-generator
+*.md
+!README.md
+branding
+templates

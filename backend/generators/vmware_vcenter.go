@@ -146,10 +146,10 @@ func (g *VMwareVCenterGenerator) randomMORef(objType string) string {
 func (g *VMwareVCenterGenerator) buildBaseEvent(eventType, message string) map[string]interface{} {
 	timestamp := time.Now().UTC()
 	return map[string]interface{}{
-		"key":            g.RandomInt(1000000, 9999999),
-		"chainId":        g.RandomInt(1000000, 9999999),
-		"createdTime":    timestamp.Format(time.RFC3339),
-		"userName":       g.RandomChoice([]string{"administrator@vsphere.local", "admin@corp.local", "svc-backup@corp.local"}),
+		"key":         g.RandomInt(1000000, 9999999),
+		"chainId":     g.RandomInt(1000000, 9999999),
+		"createdTime": timestamp.Format(time.RFC3339),
+		"userName":    g.RandomChoice([]string{"administrator@vsphere.local", "admin@corp.local", "svc-backup@corp.local"}),
 		"datacenter": map[string]interface{}{
 			"name":       g.randomDatacenter(),
 			"datacenter": g.randomMORef("datacenter"),
@@ -179,7 +179,7 @@ func (g *VMwareVCenterGenerator) generateVMCreated(overrides map[string]interfac
 	event["template"] = false
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -204,7 +204,7 @@ func (g *VMwareVCenterGenerator) generateVMPoweredOn(overrides map[string]interf
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -229,7 +229,7 @@ func (g *VMwareVCenterGenerator) generateVMPoweredOff(overrides map[string]inter
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -263,7 +263,7 @@ func (g *VMwareVCenterGenerator) generateVMMigrated(overrides map[string]interfa
 	}
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -305,7 +305,7 @@ func (g *VMwareVCenterGenerator) generateAlarmTriggered(overrides map[string]int
 	event["to"] = g.RandomChoice([]string{"yellow", "red"})
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -335,7 +335,7 @@ func (g *VMwareVCenterGenerator) generateUserLogin(overrides map[string]interfac
 	event["sessionId"] = uuid.New().String()
 
 	fields := g.ApplyOverrides(event, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),

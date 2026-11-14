@@ -6,7 +6,7 @@ import "time"
 type NoiseConfig struct {
 	ID             string               `json:"id,omitempty"`
 	Name           string               `json:"name,omitempty"`
-	DestinationID  string               `json:"destination_id,omitempty"`  // Default destination (fallback)
+	DestinationID  string               `json:"destination_id,omitempty"` // Default destination (fallback)
 	RatePerSecond  float64              `json:"rate_per_second" binding:"required,min=0.1,max=10000"`
 	EnabledSources []EnabledEventSource `json:"enabled_sources" binding:"required,min=1"`
 	CreatedAt      time.Time            `json:"created_at,omitempty"`
@@ -16,18 +16,25 @@ type NoiseConfig struct {
 // EnabledEventSource represents an enabled event type with weight
 type EnabledEventSource struct {
 	EventTypeID   string   `json:"event_type_id" binding:"required"`
-	TemplateIDs   []string `json:"template_ids,omitempty"`   // Empty means all templates
-	Weight        int      `json:"weight"`                   // 1-100, relative frequency
+	TemplateIDs   []string `json:"template_ids,omitempty"` // Empty means all templates
+	Weight        int      `json:"weight"`                 // 1-100, relative frequency
 	Enabled       bool     `json:"enabled"`
 	DestinationID string   `json:"destination_id,omitempty"` // Per-source destination (overrides global)
 }
 
+// SkippedSource names an enabled source that generates nothing, and why.
+type SkippedSource struct {
+	EventTypeID string `json:"event_type_id"`
+	Reason      string `json:"reason"`
+}
+
 // NoiseStatus represents the current state of noise generation
 type NoiseStatus struct {
-	Running       bool         `json:"running"`
-	StartedAt     *time.Time   `json:"started_at,omitempty"`
-	CurrentConfig *NoiseConfig `json:"current_config,omitempty"`
-	Stats         NoiseStats   `json:"stats"`
+	Running        bool            `json:"running"`
+	StartedAt      *time.Time      `json:"started_at,omitempty"`
+	CurrentConfig  *NoiseConfig    `json:"current_config,omitempty"`
+	SkippedSources []SkippedSource `json:"skipped_sources,omitempty"`
+	Stats          NoiseStats      `json:"stats"`
 }
 
 // NoiseStats represents generation statistics
@@ -35,6 +42,7 @@ type NoiseStats struct {
 	TotalGenerated  int64            `json:"total_generated"`
 	TotalSent       int64            `json:"total_sent"`
 	TotalErrors     int64            `json:"total_errors"`
+	TotalDropped    int64            `json:"total_dropped"` // events discarded by a full HEC buffer
 	EventsPerSecond float64          `json:"events_per_second"`
 	LastEventAt     *time.Time       `json:"last_event_at,omitempty"`
 	ByEventType     map[string]int64 `json:"by_event_type"`
@@ -45,15 +53,15 @@ type NoiseStats struct {
 
 // NoiseStartRequest represents a request to start noise generation
 type NoiseStartRequest struct {
-	DestinationID  string               `json:"destination_id,omitempty"`  // Default destination (fallback)
+	DestinationID  string               `json:"destination_id,omitempty"` // Default destination (fallback)
 	RatePerSecond  float64              `json:"rate_per_second" binding:"required,min=0.1,max=10000"`
 	EnabledSources []EnabledEventSource `json:"enabled_sources" binding:"required,min=1"`
 }
 
 // NoiseUpdateRequest represents a request to update running configuration
 type NoiseUpdateRequest struct {
-	RatePerSecond  *float64              `json:"rate_per_second,omitempty"`
-	EnabledSources []EnabledEventSource  `json:"enabled_sources,omitempty"`
+	RatePerSecond  *float64             `json:"rate_per_second,omitempty"`
+	EnabledSources []EnabledEventSource `json:"enabled_sources,omitempty"`
 }
 
 // EventSourceTree represents the hierarchical structure of event types

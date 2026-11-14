@@ -151,12 +151,12 @@ func (g *AWSGuardDutyGenerator) buildBaseFinding(findingType, title, description
 			"archived":       false,
 			"count":          g.RandomInt(1, 100),
 		},
-		"severity":    severity,
-		"createdAt":   time.Now().UTC().Format(time.RFC3339),
-		"updatedAt":   time.Now().UTC().Format(time.RFC3339),
-		"title":       title,
-		"description": description,
-		"confidence":  g.RandomInt(60, 99),
+		"severity":      severity,
+		"createdAt":     time.Now().UTC().Format(time.RFC3339),
+		"updatedAt":     time.Now().UTC().Format(time.RFC3339),
+		"title":         title,
+		"description":   description,
+		"confidence":    g.RandomInt(60, 99),
 		"severityLabel": severityLabel,
 	}
 }
@@ -177,10 +177,10 @@ func (g *AWSGuardDutyGenerator) generateSSHBruteForce(overrides map[string]inter
 	finding["resource"] = map[string]interface{}{
 		"resourceType": "Instance",
 		"instanceDetails": map[string]interface{}{
-			"instanceId":       instanceID,
-			"instanceType":     g.RandomChoice([]string{"t3.micro", "t3.small", "m5.large"}),
-			"launchTime":       time.Now().Add(-time.Duration(g.RandomInt(1, 30)*24) * time.Hour).UTC().Format(time.RFC3339),
-			"platform":         "linux",
+			"instanceId":   instanceID,
+			"instanceType": g.RandomChoice([]string{"t3.micro", "t3.small", "m5.large"}),
+			"launchTime":   time.Now().Add(-time.Duration(g.RandomInt(1, 30)*24) * time.Hour).UTC().Format(time.RFC3339),
+			"platform":     "linux",
 			"networkInterfaces": []map[string]interface{}{
 				{
 					"privateIpAddress": g.RandomIPv4Internal(),
@@ -208,7 +208,7 @@ func (g *AWSGuardDutyGenerator) generateSSHBruteForce(overrides map[string]inter
 	}
 
 	fields := g.ApplyOverrides(finding, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -263,7 +263,7 @@ func (g *AWSGuardDutyGenerator) generatePortProbe(overrides map[string]interface
 	}
 
 	fields := g.ApplyOverrides(finding, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -308,7 +308,7 @@ func (g *AWSGuardDutyGenerator) generateCryptoMining(overrides map[string]interf
 	}
 
 	fields := g.ApplyOverrides(finding, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -360,7 +360,7 @@ func (g *AWSGuardDutyGenerator) generateConsoleLoginAnomaly(overrides map[string
 	}
 
 	fields := g.ApplyOverrides(finding, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -410,7 +410,7 @@ func (g *AWSGuardDutyGenerator) generateBlackholeTraffic(overrides map[string]in
 	}
 
 	fields := g.ApplyOverrides(finding, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),
@@ -455,7 +455,7 @@ func (g *AWSGuardDutyGenerator) generateC2Activity(overrides map[string]interfac
 	}
 
 	fields := g.ApplyOverrides(finding, overrides)
-	rawEvent, _ := json.MarshalIndent(fields, "", "  ")
+	rawEvent, _ := json.Marshal(fields)
 
 	return &models.GeneratedEvent{
 		ID:         uuid.New().String(),

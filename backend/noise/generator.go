@@ -28,6 +28,7 @@ type Generator struct {
 	// Weighted selection cache
 	weightedPool []weightedTemplate
 	totalWeight  int
+	skipped      []models.SkippedSource
 }
 
 type weightedTemplate struct {
@@ -151,6 +152,12 @@ func (g *Generator) GetStatus() models.NoiseStatus {
 		startedAt := g.startedAt
 		status.StartedAt = &startedAt
 		status.CurrentConfig = g.config
+		status.SkippedSources = append([]models.SkippedSource(nil), g.skipped...)
+		for _, s := range g.senders {
+			if d, ok := s.(interface{ Dropped() int64 }); ok {
+				status.Stats.TotalDropped += d.Dropped()
+			}
+		}
 		status.Stats.DurationSeconds = int64(time.Since(g.startedAt).Seconds())
 
 		// Calculate events per second
@@ -280,6 +287,10 @@ func (g *Generator) selectWeighted() weightedTemplate {
 func (g *Generator) buildWeightedPool() {
 	g.weightedPool = nil
 	g.totalWeight = 0
+	g.skipped = nil
+	skip := func(id, reason string) {
+		g.skipped = append(g.skipped, models.SkippedSource{EventTypeID: id, Reason: reason})
+	}
 
 	for _, source := range g.config.EnabledSources {
 		if !source.Enabled {
@@ -288,6 +299,7 @@ func (g *Generator) buildWeightedPool() {
 
 		gen, ok := generators.GetGenerator(source.EventTypeID)
 		if !ok {
+			skip(source.EventTypeID, "unknown event type")
 			continue
 		}
 
@@ -297,11 +309,13 @@ func (g *Generator) buildWeightedPool() {
 			destinationID = g.config.DestinationID // Use global fallback
 		}
 		if destinationID == "" {
-			continue // No destination configured
+			skip(source.EventTypeID, "no destination configured")
+			continue
 		}
 
 		// Verify sender exists for this destination
 		if _, ok := g.senders[destinationID]; !ok {
+			skip(source.EventTypeID, "destination "+destinationID+" was not part of the start request")
 			continue
 		}
 
@@ -340,6 +354,7 @@ func (g *Generator) buildWeightedPool() {
 				}
 			}
 			if !templateExists {
+				skip(source.EventTypeID, "unknown template "+tid)
 				continue
 			}
 

@@ -288,39 +288,39 @@ func (g *MicrosoftADGenerator) generate4720(overrides map[string]interface{}) (*
 	domain := g.RandomDomain()
 
 	fields := map[string]interface{}{
-		"TargetUserName":    newUser,
-		"TargetDomainName":  domain,
-		"TargetSid":         g.RandomSID(),
-		"SubjectUserSid":    g.RandomSID(),
-		"SubjectUserName":   g.RandomUsername(),
-		"SubjectDomainName": domain,
-		"SubjectLogonId":    fmt.Sprintf("0x%x", g.RandomInt(100000, 9999999)),
-		"PrivilegeList":     "-",
-		"SamAccountName":    newUser,
-		"DisplayName":       fmt.Sprintf("%s %s", g.RandomString(6), g.RandomString(8)),
-		"UserPrincipalName": fmt.Sprintf("%s@%s.local", newUser, domain),
-		"HomeDirectory":     "-",
-		"HomePath":          "-",
-		"ScriptPath":        "-",
-		"ProfilePath":       "-",
-		"UserWorkstations":  "-",
-		"PasswordLastSet":   now.Format("1/2/2006 3:04:05 PM"),
-		"AccountExpires":    "%%1794",
-		"PrimaryGroupId":    "513",
+		"TargetUserName":      newUser,
+		"TargetDomainName":    domain,
+		"TargetSid":           g.RandomSID(),
+		"SubjectUserSid":      g.RandomSID(),
+		"SubjectUserName":     g.RandomUsername(),
+		"SubjectDomainName":   domain,
+		"SubjectLogonId":      fmt.Sprintf("0x%x", g.RandomInt(100000, 9999999)),
+		"PrivilegeList":       "-",
+		"SamAccountName":      newUser,
+		"DisplayName":         fmt.Sprintf("%s %s", g.RandomString(6), g.RandomString(8)),
+		"UserPrincipalName":   fmt.Sprintf("%s@%s.local", newUser, domain),
+		"HomeDirectory":       "-",
+		"HomePath":            "-",
+		"ScriptPath":          "-",
+		"ProfilePath":         "-",
+		"UserWorkstations":    "-",
+		"PasswordLastSet":     now.Format("1/2/2006 3:04:05 PM"),
+		"AccountExpires":      "%%1794",
+		"PrimaryGroupId":      "513",
 		"AllowedToDelegateTo": "-",
-		"OldUacValue":       "0x0",
-		"NewUacValue":       "0x15",
-		"UserAccountControl": "%%2080\n\t\t%%2082\n\t\t%%2084",
-		"UserParameters":    "-",
-		"SidHistory":        "-",
-		"LogonHours":        "%%1793",
+		"OldUacValue":         "0x0",
+		"NewUacValue":         "0x15",
+		"UserAccountControl":  "%%2080\n\t\t%%2082\n\t\t%%2084",
+		"UserParameters":      "-",
+		"SidHistory":          "-",
+		"LogonHours":          "%%1793",
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
 	computer := g.RandomDCName()
 	event := g.buildADEvent(4720, 13824, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -356,7 +356,7 @@ func (g *MicrosoftADGenerator) generate4722(overrides map[string]interface{}) (*
 
 	computer := g.RandomDCName()
 	event := g.buildADEvent(4722, 13824, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -394,7 +394,7 @@ func (g *MicrosoftADGenerator) generate4723(overrides map[string]interface{}) (*
 
 	computer := g.RandomDCName()
 	event := g.buildADEvent(4723, 13824, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -430,7 +430,7 @@ func (g *MicrosoftADGenerator) generate4724(overrides map[string]interface{}) (*
 
 	computer := g.RandomDCName()
 	event := g.buildADEvent(4724, 13824, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -466,7 +466,7 @@ func (g *MicrosoftADGenerator) generate4725(overrides map[string]interface{}) (*
 
 	computer := g.RandomDCName()
 	event := g.buildADEvent(4725, 13824, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -503,7 +503,7 @@ func (g *MicrosoftADGenerator) generate4726(overrides map[string]interface{}) (*
 
 	computer := g.RandomDCName()
 	event := g.buildADEvent(4726, 13824, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -542,7 +542,7 @@ func (g *MicrosoftADGenerator) generate4728(overrides map[string]interface{}) (*
 
 	computer := g.RandomDCName()
 	event := g.buildADEvent(4728, 13826, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -581,7 +581,7 @@ func (g *MicrosoftADGenerator) generate4729(overrides map[string]interface{}) (*
 
 	computer := g.RandomDCName()
 	event := g.buildADEvent(4729, 13826, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -621,7 +621,7 @@ func (g *MicrosoftADGenerator) generate4732(overrides map[string]interface{}) (*
 
 	computer := g.RandomDCName()
 	event := g.buildADEvent(4732, 13826, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -644,19 +644,19 @@ func (g *MicrosoftADGenerator) generate4740(overrides map[string]interface{}) (*
 	domain := g.RandomDomain()
 
 	fields := map[string]interface{}{
-		"TargetUserName":   g.RandomUsername(),
-		"TargetDomainName": domain,
-		"TargetSid":        g.RandomSID(),
-		"SubjectUserName":  g.RandomDCName(),
+		"TargetUserName":    g.RandomUsername(),
+		"TargetDomainName":  domain,
+		"TargetSid":         g.RandomSID(),
+		"SubjectUserName":   g.RandomDCName(),
 		"SubjectDomainName": domain,
-		"SubjectLogonId":   "0x0",
+		"SubjectLogonId":    "0x0",
 	}
 
 	fields = g.ApplyOverrides(fields, overrides)
 
 	computer := g.RandomDCName()
 	event := g.buildADEvent(4740, 13824, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
@@ -692,7 +692,7 @@ func (g *MicrosoftADGenerator) generate4767(overrides map[string]interface{}) (*
 
 	computer := g.RandomDCName()
 	event := g.buildADEvent(4767, 13824, computer, now, fields)
-	rawEvent, err := xml.MarshalIndent(event, "", "  ")
+	rawEvent, err := xml.Marshal(event)
 	if err != nil {
 		return nil, err
 	}
