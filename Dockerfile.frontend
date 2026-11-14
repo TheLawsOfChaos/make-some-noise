@@ -1,5 +1,5 @@
-# Build stage
-FROM node:22-alpine@sha256:12f54cafa58d0e96554ae05871e29663ff7241836377dc9a7916449b8adb062c AS builder
+# Build stage: runs on the build host; the output is static files, so no emulation
+FROM --platform=$BUILDPLATFORM node:22-alpine@sha256:12f54cafa58d0e96554ae05871e29663ff7241836377dc9a7916449b8adb062c AS builder
 
 WORKDIR /app
 
